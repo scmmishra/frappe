@@ -40,7 +40,7 @@ for(const app of app_name) {
 	test_folders.push(test_folder);
 
 	if(fs.existsSync(page_object)) {
-		page_objects.push();
+		page_objects.push(page_object);
 	}
 }
 

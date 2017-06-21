@@ -1,4 +1,5 @@
 module.exports = {
+	'@disabled': true,
 	beforeEach: browser => {
 		browser
 			.url(browser.launch_url + '/login')
