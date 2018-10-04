@@ -38,6 +38,8 @@ class HTTPRequest:
 		else:
 			frappe.local.request_ip = '127.0.0.1'
 
+		frappe.local.request_agent = frappe.get_request_header('User-Agent')
+
 		# language
 		self.set_lang()
 

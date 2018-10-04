@@ -48,7 +48,18 @@ def update_feed(doc, method=None):
 
 def login_feed(login_manager):
 	if login_manager.user != "Guest":
+		current_fingerprint = frappe.local.request_ip + "-" + frappe.local.request_agent
 		subject = _("{0} logged in").format(get_fullname(login_manager.user))
+		fingerprint_log = frappe.get_all('Activity Log',
+					fields=['login_ip, login_agent'],
+					filters={
+						'status': 'Success',
+						'User': login_manager.user,
+						'login_ip': ("!=", ""),
+						'login_agent': ("!=", "")})
+		existing_fingerprints = [log.login_ip + "-" + log.login_agent for log in fingerprint_log]
+		if current_fingerprint not in existing_fingerprints:
+			print("Suspected Breach: Unknown Login {0}".format(current_fingerprint))
 		add_authentication_log(subject, login_manager.user)
 
 def logout_feed(user, reason):

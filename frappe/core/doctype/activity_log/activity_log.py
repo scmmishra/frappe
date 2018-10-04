@@ -35,8 +35,14 @@ def on_doctype_update():
 	frappe.db.add_index("Activity Log", ["link_doctype", "link_name"])
 
 def add_authentication_log(subject, user, operation="Login", status="Success"):
+	login_ip, login_agent = None, None
+	if operation == "Login":
+		login_ip = frappe.local.request_ip
+		login_agent = frappe.local.request_agent
 	frappe.get_doc({
 		"doctype": "Activity Log",
+		"login_ip": login_ip,
+		"login_agent": login_agent,
 		"user": user,
 		"status": status,
 		"subject": subject,
