@@ -12,7 +12,7 @@ from frappe.utils import get_fullname, get_link_to_form
 from frappe.website.render import clear_cache
 from frappe.database.schema import add_column
 from frappe.exceptions import ImplicitCommitError
-from html import unescape
+from six.moves.html_parser import HTMLParser
 
 class Comment(Document):
 	def after_insert(self):
@@ -26,7 +26,7 @@ class Comment(Document):
 		if not self.comment_email:
 			self.comment_email = frappe.session.user
 		if self.content:
-			self.content = frappe.utils.sanitize_html(unescape(self.content))
+			self.content = frappe.utils.sanitize_html(HTMLParser().unescape(self.content))
 
 	def on_update(self):
 		update_comment_in_doc(self)
