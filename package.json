@@ -5,7 +5,10 @@
     "production": "FRAPPE_ENV=production node rollup/build.js",
     "watch": "node rollup/watch.js",
     "cypress:run": "cypress run --record --key 14ddd919-b01f-4d5f-b9d1-5af54d34c7f3",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "serve": "vue-cli-service serve",
+    "build-deskv3": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,7 @@
     "bootstrap": "^4.3.1",
     "cookie": "^0.3.1",
     "express": "^4.16.2",
+    "feather-icons": "^4.19.0",
     "frappe-datatable": "^1.8.0",
     "frappe-gantt": "^0.1.0",
     "fuse.js": "^3.2.0",
@@ -35,14 +39,22 @@
     "showdown": "^1.8.6",
     "socket.io": "^2.0.4",
     "superagent": "^3.8.2",
+    "tailwindcss": "^0.7.4",
     "touch": "^3.1.0",
     "vue": "^2.6.8",
-    "vue-router": "^2.0.0"
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.5.0",
+    "@vue/cli-plugin-eslint": "^3.5.0",
+    "@vue/cli-service": "^3.5.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "babel-eslint": "^10.0.1",
     "babel-runtime": "^6.26.0",
     "chalk": "^2.3.2",
     "cypress": "^3.1.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
     "less": "^3.0.4",
     "node-sass": "^4.11.0",
     "rollup": "^1.2.2",
@@ -53,6 +65,7 @@
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-uglify": "^3.0.0",
     "rollup-plugin-vue": "4.2.0",
+    "sass-loader": "^7.1.0",
     "vue-template-compiler": "^2.6.8"
   }
 }
