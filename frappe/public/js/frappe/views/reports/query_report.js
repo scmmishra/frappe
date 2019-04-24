@@ -554,7 +554,7 @@ frappe.views.QueryReport = class QueryReport extends frappe.views.BaseList {
 		function get_options(fields) {
 			return fields.map((field) => {
 				return {label: field.label, value: field.fieldname};
-			}
+			});
 		}
 
 		const numeric_fields = columns.filter((col, i) => indices.includes(i));
