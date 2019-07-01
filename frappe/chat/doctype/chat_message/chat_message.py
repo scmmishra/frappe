@@ -146,7 +146,6 @@ def seen(message, user = None):
 	if has_message:
 		mess = frappe.get_doc('Chat Message', message)
 		mess.add_seen(user)
-
 		room = mess.room
 		resp = dict(message = message, data = dict(seen = json.loads(mess._seen)))
 
