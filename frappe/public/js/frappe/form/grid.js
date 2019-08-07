@@ -142,7 +142,9 @@ export default class Grid {
 						me.df.data = me.get_data();
 						me.df.data = me.df.data.filter((row)=> row.idx != doc.idx);
 					}
-					me.grid_rows_by_docname[doc.name].remove();
+					else {
+						me.grid_rows_by_docname[doc.name].remove();
+					}
 					dirty = true;
 				});
 				tasks.push(() => frappe.timeout(0.1));

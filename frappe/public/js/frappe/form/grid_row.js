@@ -84,8 +84,8 @@ export default class GridRow {
 				});
 			} else {
 				let data = null;
-				if (this.grid.df.get_data) {
-					data = this.grid.df.get_data();
+				if (this.grid.get_data) {
+					data = this.grid.get_data();
 				} else {
 					data = this.grid.df.data;
 				}
@@ -96,12 +96,17 @@ export default class GridRow {
 					// mutate array directly,
 					// else the object reference will be lost
 					data.splice(index, 1);
+				} else {
+					let idx = data.findIndex(d => d.idx === me.idx);
+					data.splice(idx, 1);
 				}
+
+
 				// remap idxs
 				data.forEach(function(d, i) {
 					d.idx = i+1;
 				});
-
+				this.grid.df.data = data;
 				this.grid.refresh();
 			}
 		}
