@@ -324,7 +324,7 @@ export default class Grid {
 			this.docfields = frappe.meta.get_docfields(this.doctype, this.frm.docname);
 		} else {
 			// fields given in docfield
-			this.docfields = this.df.fields;
+			this.docfields = this.df.fields.filter(field => field.fieldname !== "name");
 		}
 
 		this.docfields.forEach(function(df) {
