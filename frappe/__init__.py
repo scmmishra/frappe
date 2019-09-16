@@ -1513,7 +1513,7 @@ def safe_eval(code, eval_globals=None, eval_locals=None):
 		"round": round
 	}
 
-	if '__' in code:
+	if code and '__' in code:
 		throw('Illegal rule {0}. Cannot use "__"'.format(bold(code)))
 
 	if not eval_globals:
