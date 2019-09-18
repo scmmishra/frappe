@@ -16,7 +16,7 @@
               </div>
             </h4>
           </a>
-          <dropdown v-if="dropdown_links && dropdown_links.length" :items="dropdown_links">
+          <dropdown :items="dropdown_links">
             <span class="pull-right">
               <i class="octicon octicon-chevron-down text-muted"></i>
             </span>
