@@ -587,6 +587,7 @@ class FilterArea {
 	}
 
 	make_standard_filters() {
+		debugger
 		let fields = [
 			{
 				fieldtype: 'Data',
@@ -601,7 +602,6 @@ class FilterArea {
 			this.list_view.custom_filter_configs.forEach(config => {
 				config.onchange = () => this.refresh_list_view();
 			});
-
 			fields = fields.concat(this.list_view.custom_filter_configs);
 		}
 
@@ -614,7 +614,7 @@ class FilterArea {
 			let options = df.options;
 			let condition = '=';
 			let fieldtype = df.fieldtype;
-			if (['Text', 'Small Text', 'Text Editor', 'Data'].includes(fieldtype)) {
+			if (['Text', 'Small Text', 'Text Editor', 'Data', 'Code'].includes(fieldtype)) {
 				fieldtype = 'Data';
 				condition = 'like';
 			}
