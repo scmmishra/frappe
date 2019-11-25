@@ -1,6 +1,7 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // MIT License. See license.txt
 import ListFilter from './list_filter';
+import ListSidebarDropdown from './list_sidebar_dropdown';
 frappe.provide('frappe.views');
 
 // opts:
@@ -27,7 +28,7 @@ frappe.views.ListSidebar = class ListSidebar {
 		this.setup_list_filter();
 		this.setup_views();
 		this.setup_kanban_boards();
-		this.setup_calendar_view();
+		this.setup_another_calendar();
 		this.setup_email_inbox();
 		this.setup_keyboard_shortcuts();
 		this.setup_list_group_by();
@@ -156,6 +157,15 @@ frappe.views.ListSidebar = class ListSidebar {
 	setup_calendar_view() {
 		const doctype = this.doctype;
 
+		function get_calendar_url(name=null) {
+			if (name) {
+				return `<li><a href="#List/${doctype}/Calendar/${name}" style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;">${ __(name) }</a></li>`
+			}
+
+			// Return default if no name provided
+			return `<li><a href="#List/${doctype}/Calendar/Default">${ __("Default") }</a></li>`
+		}
+
 		frappe.db.get_list('Calendar View', {
 			filters: {
 				reference_doctype: doctype
@@ -168,14 +178,18 @@ frappe.views.ListSidebar = class ListSidebar {
 			let default_link = '';
 			if (frappe.views.calendar[this.doctype]) {
 				// has standard calendar view
-				default_link = `<li><a href="#List/${doctype}/Calendar/Default">
-					${ __("Default") }</a></li>`;
+				default_link = get_calendar_url();
 			}
-			const other_links = calendar_views.map(
-				calendar_view => `<li><a href="#List/${doctype}/Calendar/${calendar_view.name}">
-					${ __(calendar_view.name) }</a>
-				</li>`
-			).join('');
+			let dropdown_body = ''
+			if (calendar_views.length) {
+				dropdown_body = calendar_views.map(view => {
+					return get_calendar_url(view.name)
+				}).join('');
+			} else if(!default_link) {
+				dropdown_body = `<li class="text-muted p-2 text-center" style="padding: 1em !important;text-align: center;">
+						${__('No Calendar View Found')}
+					</li>`
+			}
 
 			const dropdown_html = `
 				<div class="btn-group">
@@ -184,12 +198,51 @@ frappe.views.ListSidebar = class ListSidebar {
 					</a>
 					<ul class="dropdown-menu calendar-dropdown" style="max-height: 300px; overflow-y: auto;">
 						${default_link}
-						${other_links}
+						${dropdown_body}
 					</ul>
 				</div>
 			`;
 			$link_calendar.removeClass('hide');
 			$link_calendar.html(dropdown_html);
+		});
+	}
+
+	setup_calendar_view() {
+		const doctype = this.doctype;
+
+		frappe.db.get_list('Calendar View', {
+			filters: {
+				reference_doctype: doctype
+			}
+		}).then(result => {
+			let calendar_views = []
+			if (frappe.views.calendar[this.doctype]) {
+				// has standard calendar view
+				calendar_views = [{ name: __('Default') }, ...result]
+			} else {
+				calendar_views = result;
+			}
+			const $link_calendar = this.sidebar.find('.list-link[data-view="Calendar"]');
+
+			const formatter = function(doctype, item) {
+				return `<li>
+						<a href="#List/${doctype}/Calendar/${item.name}" style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;">
+							${item.name}
+						</a>
+					</li>`
+			}
+
+			const calendar_dropdown = new ListSidebarDropdown({
+				label: __("Calendar"),
+				list_items: calendar_views,
+				wrapper: $link_calendar,
+				doctype: this.doctype,
+				formatter: (doctype, item) => formatter(doctype, item),
+				empty_message: __("No Calendar View Found"),
+				allow_search: true,
+				allow_creation: true
+			})
+			$link_calendar.removeClass('hide');
 		});
 	}
 
@@ -296,6 +349,7 @@ frappe.views.ListSidebar = class ListSidebar {
 	}
 
 	render_stat(field, stat, tags) {
+		console.trace()
 		var me = this;
 		var sum = 0;
 		var stats = [];
