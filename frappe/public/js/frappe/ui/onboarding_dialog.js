@@ -46,16 +46,14 @@ frappe.setup.OnboardingSlide = class OnboardingSlide extends frappe.ui.Slide {
 
 	primary_action() {
 		let me = this;
-		const method = frappe.desk.doctype.onboarding_slide.onboarding_slide.create_onboarding_docs;
 		if (this.set_values()) {
 			this.$action_button.addClass('disabled');
 			if (me.add_more) me.values.max_count = me.max_count;
 			frappe.call({
-				method: '',
+				method: 'frappe.desk.doctype.onboarding_slide.onboarding_slide.create_onboarding_docs',
 				args: {
 					values: me.values,
 					doctype: me.ref_doctype,
-					submit_method: me.submit_method,
 					app: me.app,
 					slide_type: me.slide_type
 				},

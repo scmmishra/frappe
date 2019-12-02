@@ -66,20 +66,13 @@ def get_slide_image(slide_doc):
 	return None
 
 @frappe.whitelist()
-def create_onboarding_docs(values, doctype=None, submit_method=None, app=None, slide_type=None):
+def create_onboarding_docs(values, doctype=None, app=None, slide_type=None):
 	data = json.loads(values)
-	if submit_method:
-		try:
-			method = frappe.scrub(app) + '.utilities.onboarding_utils.' + submit_method
-			frappe.call(method, data)
-		except AttributeError:
-			create_generic_onboarding_doc(data, doctype, slide_type)
+	doc = frappe.new_doc(doctype)
+	if hasattr(doc, 'create_onboarding_docs'):
+		doc.create_onboarding_docs(data)
 	else:
-		doc = frappe.new_doc(doctype)
-		if hasattr(doc, 'create_onboarding_docs'):
-			doc.create_onboarding_docs(data)
-		else:
-			create_generic_onboarding_doc(data, doctype, slide_type)
+		create_generic_onboarding_doc(data, doctype, slide_type)
 
 def create_generic_onboarding_doc(data, doctype, slide_type):
 	if slide_type == 'Settings':
