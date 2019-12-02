@@ -26,6 +26,7 @@ def get_onboarding_slides_as_list():
 		slide_doc = frappe.get_doc('Onboarding Slide', entry.name)
 		if frappe.scrub(slide_doc.app) in frappe.get_installed_apps():
 			slides.append(frappe._dict(
+				slide_name=slide_doc.name,
 				slide_type=slide_doc.slide_type,
 				title=slide_doc.slide_title,
 				help=slide_doc.slide_desc,

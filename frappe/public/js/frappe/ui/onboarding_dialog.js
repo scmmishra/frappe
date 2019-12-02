@@ -45,34 +45,31 @@ frappe.setup.OnboardingSlide = class OnboardingSlide extends frappe.ui.Slide {
 	}
 
 	primary_action() {
-		let me = this;
-		if (this.set_values()) {
-			this.$action_button.addClass('disabled');
-			if (me.add_more) me.values.max_count = me.max_count;
-			frappe.call({
-				method: 'frappe.desk.doctype.onboarding_slide.onboarding_slide.create_onboarding_docs',
-				args: {
-					values: me.values,
-					doctype: me.ref_doctype,
-					app: me.app,
-					slide_type: me.slide_type
-				},
-				callback: function() {
-					if (me.id === me.parent[0].children.length-1) {
-						$('.onboarding-dialog').modal('toggle');
-						frappe.msgprint({
-							message: __('You are all set up!'),
-							indicator: 'green',
-							title: __('Success')
-						});
-					}
-				},
-				onerror: function() {
-					me.slides_footer.find('.primary').removeClass('disabled');
-				},
-				freeze: true
-			});
+		this.$action_button.addClass('disabled');
+		const primary_method = 'frappe.desk.doctype.onboarding_slide.onboarding_slide.create_onboarding_docs';
+		let values = this.form.get_values()
+		if (this.add_more) {
+			values.max_count = this.max_count;
 		}
+
+		frappe.call(primary_method, {
+			values: values,
+			slide_name: this.slide_name,
+			doctype: this.ref_doctype,
+			app: this.app,
+			slide_type: this.slide_type
+		}).then(() => {
+			if (this.id === this.parent[0].children.length-1) {
+				$('.onboarding-dialog').modal('toggle');
+				frappe.msgprint({
+					message: __('You are all set up!'),
+					indicator: 'green',
+					title: __('Success')
+				});
+			}
+		}).then(() =>  {
+			this.slides_footer.find('.primary').removeClass('disabled');
+		});
 	}
 
 	unbind_primary_action() {
