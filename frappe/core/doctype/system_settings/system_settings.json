@@ -10,6 +10,7 @@
   "column_break_3",
   "time_zone",
   "is_first_startup",
+  "completed_onboaring_slides",
   "setup_complete",
   "date_and_number_format",
   "date_format",
@@ -397,11 +398,18 @@
    "fieldname": "allow_guests_to_upload_files",
    "fieldtype": "Check",
    "label": "Allow Guests to Upload Files"
+  },
+  {
+   "fieldname": "completed_onboaring_slides",
+   "fieldtype": "Text",
+   "hidden": 1,
+   "label": "Completed Onboaring Slides",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-cog",
  "issingle": 1,
- "modified": "2019-08-16 08:26:45.936626",
+ "modified": "2019-12-02 13:32:25.479708",
  "modified_by": "Administrator",
  "module": "Core",
  "name": "System Settings",
