@@ -67,13 +67,28 @@ def get_slide_image(slide_doc):
 	return None
 
 @frappe.whitelist()
-def create_onboarding_docs(values, doctype=None, app=None, slide_type=None):
+def create_onboarding_docs(values, slide_name, doctype=None, app=None, slide_type=None):
 	data = json.loads(values)
 	doc = frappe.new_doc(doctype)
 	if hasattr(doc, 'create_onboarding_docs'):
 		doc.create_onboarding_docs(data)
 	else:
 		create_generic_onboarding_doc(data, doctype, slide_type)
+
+	mark_success(slide_name)
+
+def mark_success(name):
+	system_settings = frappe.get_single("System Settings")
+
+	finished_slides = system_settings.completed_onboaring_slides
+	finished_slides = finished_slides.split('\n') if finished_slides else []
+	if name in finished_slides:
+		return
+
+	finished_slides.append(name)
+	system_settings.completed_onboaring_slides = '\n'.join(finished_slides)
+	system_settings.save()
+
 
 def create_generic_onboarding_doc(data, doctype, slide_type):
 	if slide_type == 'Settings':
