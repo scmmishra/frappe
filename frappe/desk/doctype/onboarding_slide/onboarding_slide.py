@@ -131,4 +131,7 @@ def get_first_slide():
 		order_by='slide_order',
 		fields=['name', 'is_completed']
 	)
-	return slides[0]
+	try:
+		return slides[0]
+	except IndexError:
+		return 0
