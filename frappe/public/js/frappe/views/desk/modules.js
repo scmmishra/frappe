@@ -7,9 +7,11 @@ export default class ModulesPage {
 		this.page = parent.page;
 
 		this.init();
+		this.sections = {};
 
 		this.setup_header();
 		this.make();
+		window.mod = this;
 	}
 
 	init() {
@@ -60,8 +62,10 @@ export default class ModulesPage {
 		frappe.module_links[this.module_name] = [];
 
 		this.moduleview_data.forEach(section => {
+			section.name = frappe.scrub(section.title)
 			section.items.forEach(item => {
 				item.route = generate_route(item);
+				// item.name = frappe.scrub(item.title);
 			});
 		});
 	}
@@ -88,13 +92,43 @@ export default class ModulesPage {
 	}
 
 	make_sections() {
-		this.section = new DeskSection({
+		this.sections["dashboard"] = new DeskSection({
 			hide_title: true,
+			options: {},
+			widget_config: [
+				{
+					label: "Some Data",
+					title: "Some Data",
+					name: "some_data",
+					type: "chart",
+					chart_name: "Sales Inv",
+					columns: 2,
+					rows: 1
+				},
+				{
+					label: "More Data",
+					title: "More Data",
+					name: "more_data",
+					type: "chart",
+					chart_name: "Sales Inv",
+					columns: 1,
+					rows: 1
+				}
+			],
+			container: this.cards_container,
+			sortable_config: {
+				enable: true
+			}
+		});
+
+		this.sections["module_items"] = new DeskSection({
+			title: "Module Items",
+			hide_title: false,
 			options: {},
 			widget_config: this.moduleview_data,
 			container: this.cards_container,
 			sortable_config: {
-				enable: false
+				enable: true
 			}
 		});
 	}

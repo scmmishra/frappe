@@ -23,6 +23,7 @@ export default class Widget {
 
 		this.title_field = this.widget.find(".widget-title");
 		this.body = this.widget.find(".widget-body");
+		this.widget.css('grid-area', this.data.name)
 		this.set_title();
 		this.set_body();
 	}
