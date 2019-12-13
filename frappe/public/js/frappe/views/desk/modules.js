@@ -7,9 +7,11 @@ export default class ModulesPage {
 		this.page = parent.page;
 
 		this.init();
+		this.sections = {};
 
 		this.setup_header();
 		this.make();
+		window.mod = this;
 	}
 
 	init() {
@@ -36,6 +38,7 @@ export default class ModulesPage {
 		this.get_moduleview_data().then(() => {
 			this.process_data();
 			this.hide_loading();
+			this.setup_customize_button();
 			this.make_sections();
 		});
 	}
@@ -60,8 +63,10 @@ export default class ModulesPage {
 		frappe.module_links[this.module_name] = [];
 
 		this.moduleview_data.forEach(section => {
+			section.name = frappe.scrub(section.title)
 			section.items.forEach(item => {
 				item.route = generate_route(item);
+				// item.name = frappe.scrub(item.title);
 			});
 		});
 	}
@@ -75,12 +80,26 @@ export default class ModulesPage {
 
 	setup_loading() {
 		this.loading = $(`<div><div class="modules-container section-loading">
-			<div class="skeleton-section-box"></div>
-			<div class="skeleton-section-box"></div>
-			<div class="skeleton-section-box"></div>
+			<div class="skeleton-widget-box"></div>
+			<div class="skeleton-widget-box"></div>
+			<div class="skeleton-widget-box"></div>
 		</div></div>`);
 
 		this.loading.appendTo(this.cards_container);
+	}
+
+	setup_customize_button() {
+		this.customize_button = this.page.set_secondary_action("Customize", () => {
+			this.customize();
+		})
+	}
+
+	customize() {
+		this.customize_button.remove()
+		this.sections.dashboard.customize();
+		this.canel = this.page.set_secondary_action("Customize", () => {
+			this.customize();
+		})
 	}
 
 	hide_loading() {
@@ -88,13 +107,44 @@ export default class ModulesPage {
 	}
 
 	make_sections() {
-		this.section = new DeskSection({
+		this.sections["dashboard"] = new DeskSection({
 			hide_title: true,
+			options: {},
+			widget_config: [
+				{
+					module_name: "rohit",
+					name: "rohit",
+					label: "Sales Invoice",
+					title: "Some Data",
+					type: "chart",
+					chart_name: "Sales Inv",
+					width: 'one-third'
+				},
+				{
+					module_name: "thanos",
+					name: "thanos",
+					label: "Purhcase Invoice",
+					title: "Some Data",
+					type: "chart",
+					chart_name: "Sales Inv",
+					width: 'two-third'
+				}
+			],
+			container: this.cards_container,
+			sortable_config: {
+				enable: true
+			},
+			auto_grid: true
+		});
+
+		this.sections["module_items"] = new DeskSection({
+			title: "Module Items",
+			hide_title: false,
 			options: {},
 			widget_config: this.moduleview_data,
 			container: this.cards_container,
 			sortable_config: {
-				enable: false
+				enable: true
 			}
 		});
 	}
