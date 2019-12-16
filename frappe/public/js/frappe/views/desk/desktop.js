@@ -29,7 +29,7 @@ export default class Desk {
 
 	fetch_desktop_settings() {
 		return frappe
-			.call("frappe.desk.moduleview.get_desktop_settings")
+			.call("frappe.desk.desktop.get_desktop_settings")
 			.then(response => {
 				if (response.message) {
 					this.categories = response.message;
@@ -65,7 +65,7 @@ export default class Desk {
 							).map(node => node.dataset.moduleName);
 
 							frappe.call(
-								"frappe.desk.moduleview.update_modules_order",
+								"frappe.desk.desktop.update_modules_order",
 								{
 									module_category: options.category,
 									modules: modules
@@ -106,7 +106,7 @@ export default class Desk {
 		};
 
 		frappe
-			.call("frappe.desk.moduleview.get_options_for_show_hide_cards")
+			.call("frappe.desk.desktop.get_options_for_show_hide_cards")
 			.then(r => {
 				let { user_options, global_options } = r.message;
 
@@ -203,7 +203,7 @@ export default class Desk {
 
 		frappe
 			.call({
-				method: "frappe.desk.moduleview.update_hidden_modules",
+				method: "frappe.desk.desktop.update_hidden_modules",
 				args: { category_map },
 				btn: d.get_primary_btn()
 			})
@@ -226,7 +226,7 @@ export default class Desk {
 
 		frappe
 			.call({
-				method: "frappe.desk.moduleview.update_global_hidden_modules",
+				method: "frappe.desk.desktop.update_global_hidden_modules",
 				args: {
 					modules: blocked_modules
 				},
