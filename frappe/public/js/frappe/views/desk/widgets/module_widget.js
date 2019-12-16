@@ -25,7 +25,7 @@ export default class ModuleWidget extends LinkWidget {
 	}
 
 	get_dropdown_body() {
-		const list_html = this.data.links.map(item => {
+		const list_html = this.options.links.map(item => {
 			return `<li class="${item.class || null}">
 					<a class="list-item" href="${generate_route(item)}">${item.label}</a>
 				</li>`;
@@ -64,7 +64,7 @@ export default class ModuleWidget extends LinkWidget {
 
 	setup_customize_button() {
 		this.customize_dropdown.on("click", () => {
-			const module_links = this.data.links;
+			const module_links = this.options.links;
 			const d = new frappe.ui.Dialog({
 				title: __("Customize Shortcuts"),
 				fields: [
@@ -75,17 +75,17 @@ export default class ModuleWidget extends LinkWidget {
 						get_data: () => {
 							return frappe
 								.xcall(
-									"frappe.desk.moduleview.get_links_for_module",
+									"frappe.desk.desktop.get_links_for_module",
 									{
-										app: this.data.app,
-										module: this.data.module_name
+										app: this.options.app,
+										module: this.name
 									}
 								)
 								.then(links => {
 									return links;
 								});
 						},
-						default: this.data.links
+						default: this.options.links
 							.filter(l => !l.hidden)
 							.map(l => l.name)
 					}
@@ -94,15 +94,15 @@ export default class ModuleWidget extends LinkWidget {
 				primary_action: ({ links }) => {
 					frappe
 						.call(
-							"frappe.desk.moduleview.update_links_for_module",
+							"frappe.desk.desktop.update_links_for_module",
 							{
-								app: this.data.app,
-								module_name: this.data.module_name,
+								app: this.options.app,
+								module_name: this.name,
 								links: links || []
 							}
 						)
 						.then(r => {
-							this.data.links = r.message;
+							this.options.links = r.message;
 							this.make_dropdown();
 							this.setup_events();
 						});

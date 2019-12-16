@@ -28,11 +28,38 @@ export default class Desk {
 	}
 
 	fetch_desktop_settings() {
+		let process_desktop_settings = settings => {
+			let categories = {};
+			this.module_categories.forEach(category => {
+				if (settings.hasOwnProperty(category)) {
+					categories[category] = settings[category].map(item => {
+						return {
+							name: item.module_name,
+							label: item.label,
+							width: "auto",
+							type: item.type,
+							options: {
+								icon: item.icon,
+								links: item.links,
+								category: item.category,
+								app: item.app,
+								link: item.link
+							}
+						};
+					});
+				}
+			});
+
+			return categories;
+		};
+
 		return frappe
 			.call("frappe.desk.desktop.get_desktop_settings")
 			.then(response => {
 				if (response.message) {
-					this.categories = response.message;
+					this.categories = process_desktop_settings(
+						response.message
+					);
 				}
 			});
 	}
@@ -54,12 +81,11 @@ export default class Desk {
 			) {
 				this.sections[category] = new DeskSection({
 					title: category,
-					options: { category: category },
 					widget_config: this.categories[category],
 					container: this.modules_section_container,
 					sortable_config: {
 						enable: true,
-						after_sort: (container, options) => {
+						after_sort: container => {
 							let modules = Array.from(
 								container.querySelectorAll(".module-box")
 							).map(node => node.dataset.moduleName);
@@ -67,7 +93,7 @@ export default class Desk {
 							frappe.call(
 								"frappe.desk.desktop.update_modules_order",
 								{
-									module_category: options.category,
+									module_category: category,
 									modules: modules
 								}
 							);

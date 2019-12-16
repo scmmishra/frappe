@@ -1,4 +1,5 @@
 import frappe
+import json
 from frappe.desk.moduleview import get_config
 
 @frappe.whitelist()
@@ -20,20 +21,24 @@ def get_links(app, module):
 @frappe.whitelist()
 def get_desktop_settings():
 	from frappe.config import get_modules_from_all_apps_for_user
-	all_modules = get_modules_from_all_apps_for_user()
-	home_settings = get_home_settings()
 
-	modules_by_name = {}
-	for m in all_modules:
-		modules_by_name[m['module_name']] = m
+	# Setup default list of modules
+	modules_list = get_modules_from_all_apps_for_user()
+	modules_dict = {mod.get('module_name'): mod for mod in modules_list}
 
 	module_categories = ['Modules', 'Domains', 'Places', 'Administration']
-	user_modules_by_category = {}
+	desktop_configuration = {}
 
+	# Fetch User Customization
+	home_settings = get_home_settings()
+
+	# Stores visibility and order of modules
 	user_saved_modules_by_category = home_settings.modules_by_category or {}
+
+	# links for each module
 	user_saved_links_by_module = home_settings.links_by_module or {}
 
-	def apply_user_saved_links(module):
+	def add_links(module):
 		module = frappe._dict(module)
 		all_links = get_links(module.app, module.module_name)
 		module_links_by_name = {}
@@ -47,22 +52,21 @@ def get_desktop_settings():
 		return module
 
 	for category in module_categories:
+		# If user has customized the category items
 		if category in user_saved_modules_by_category:
 			user_modules = user_saved_modules_by_category[category]
-			user_modules_by_category[category] = [apply_user_saved_links(modules_by_name[m]) \
-				for m in user_modules if modules_by_name.get(m)]
+			desktop_configuration[category] = [add_links(modules_dict[m]) for m in user_modules if modules_dict.get(m)]
 		else:
-			user_modules_by_category[category] = [apply_user_saved_links(m) \
-				for m in all_modules if m.get('category') == category]
+			desktop_configuration[category] = [add_links(m) for m in modules_list if m.get('category') == category]
 
 	# filter out hidden modules
 	if home_settings.hidden_modules:
-		for category in user_modules_by_category:
+		for category in desktop_configuration:
 			hidden_modules = home_settings.hidden_modules or []
-			modules = user_modules_by_category[category]
-			user_modules_by_category[category] = [module for module in modules if module.module_name not in hidden_modules]
+			modules = desktop_configuration[category]
+			desktop_configuration[category] = [module for module in modules if module.module_name not in hidden_modules]
 
-	return user_modules_by_category
+	return desktop_configuration
 
 @frappe.whitelist()
 def update_hidden_modules(category_map):
