@@ -7,14 +7,14 @@ export default class LinkWidget extends Widget {
 	}
 
 	get_link() {
-		return this.data.type === "module"
-			? "#modules/" + this.data.module_name
-			: this.data.link;
+		return this.type === "module"
+			? "#modules/" + this.name
+			: this.options.link;
 	}
 
 	make_widget() {
 		this.widget = $(`<div class="border module-box" data-module-name="${
-			this.data.module_name
+			this.name
 		}" tab-index="10">
 			<div class="flush-top">
 				<div class="module-box-content">
@@ -23,9 +23,9 @@ export default class LinkWidget extends Widget {
 							<h4 class="h4">
 							<div>
 								<i class="${
-									this.data.icon
+									this.options.icon
 								}" style="color:#8d99a6;font-size:18px;margin-right:6px;"></i>
-								${this.data.label}
+								${this.label}
 							</div>
 							</h4>
 						</a>

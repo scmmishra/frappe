@@ -31,7 +31,7 @@ export default class Widget {
 		this.title_field = this.widget.find(".widget-title");
 		this.body = this.widget.find(".widget-body");
 		this.action_area = this.widget.find(".widget-action")
-		if(this.data.auto_grid) {
+		if(this.options.auto_grid) {
 			this.widget.css('grid-area', this.data.name);
 		}
 		this.set_title();
@@ -40,7 +40,7 @@ export default class Widget {
 	}
 
 	set_title() {
-		this.title_field[0].innerHTML = this.data.label || this.data.name;
+		this.title_field[0].innerHTML = this.label || this.name;
 	}
 
 	set_actions() {

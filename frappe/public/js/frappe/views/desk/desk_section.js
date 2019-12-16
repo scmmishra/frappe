@@ -1,4 +1,5 @@
 import { get_widget_class } from "./widgets";
+import { generate_route } from "./widgets/utils";
 
 export default class DeskSection {
 	constructor(opts) {
@@ -16,19 +17,6 @@ export default class DeskSection {
 	}
 
 	build_grid() {
-		function add(a, b) {
-			return a + b;
-		}
-
-		const grid_max_cols = 6
-
-		const width_map = {
-			'one-third': 2,
-			'two-third': 4,
-			'half': 3,
-			'full': 6
-		}
-
 		let data = this.widget_config.map((widget, index) => {
 			return {
 				name: widget.name || `grid`,
@@ -37,47 +25,8 @@ export default class DeskSection {
 			}
 		})
 
+		grid_template_area = generate_grid(data)
 
-		// Split the data into multiple arrays
-		// Each array will contain grid elements of one row
-		let processed = []
-		let temp = []
-		let init = 0
-		data.forEach((data) => {
-			init = init + data.columns;
-			if (init > grid_max_cols) {
-				init = data.columns
-				processed.push(temp)
-				temp = []
-			}
-			temp.push(data)
-		})
-
-		processed.push(temp)
-
-		let grid_template = [];
-
-		processed.forEach((data, index) => {
-			let aa = data.map(dd => {
-				return Array.apply(null, Array(dd.columns)).map(String.prototype.valueOf, dd.name)
-			}).flat()
-
-			if (aa.length < grid_max_cols) {
-				let diff = grid_max_cols - aa.length;
-				for (let ii = 0; ii < diff; ii++) {
-					aa.push(`grid-${index}-${ii}`)
-				}
-			}
-
-			grid_template.push(aa.join(" "))
-		})
-		let grid_template_area = ""
-
-		grid_template.forEach(temp => {
-			grid_template_area += `"${temp}" `
-		})
-
-		console.log(grid_template_area)
 		this.modules_container.css('grid-template-columns','repeat(6, 1fr)')
 		this.modules_container.css('grid-template-areas', grid_template_area)
 	}
@@ -102,7 +51,7 @@ export default class DeskSection {
 	}
 
 	setup_grid() {
-		this.grid_config && this.modules_container.css('grid-template-columns', this.grid_config.column || 'repeat(3, 1fr)')
+		this.grid_config && this.modules_container.css('grid-template-columns', this.grid_config.column || 'repeat(auto-fill, minmax(300px, 1fr))')
 	}
 
 	make_module_widget() {
@@ -110,11 +59,8 @@ export default class DeskSection {
 			let widget_class = get_widget_class(wid.type);
 			let widget = new widget_class({
 				container: this.modules_container,
-				data: {
-					...wid,
-					index: index,
-					auto_grid: this.auto_grid
-				}
+				...wid,
+				auto_grid: this.auto_grid
 			});
 
 			this.widgets[wid.module_name] = widget;
@@ -127,7 +73,7 @@ export default class DeskSection {
 		this.sortable = new Sortable(container, {
 			animation: 150,
 			onEnd: () => {
-				this.sortable_config.after_sort(container, this.options);
+				this.sortable_config.after_sort(container);
 			}
 		});
 	}

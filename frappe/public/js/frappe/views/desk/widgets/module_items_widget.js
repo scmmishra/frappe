@@ -54,7 +54,7 @@ export default class ModuleItemsWidget extends Widget {
 			}</a>`;
 		};
 
-		this.link_list = this.data.items.map(item => {
+		this.link_list = this.options.links.map(item => {
 			return $(`<div class=" link-item flush-top small ${
 				item.onboard ? "onboard-spotlight" : ""
 			} ${disabled_dependent(item)}" type="${item.type}">

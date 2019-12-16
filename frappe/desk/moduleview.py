@@ -14,11 +14,7 @@ def get(module):
 	`/desk/#Module/[name]`."""
 	data = get_data(module)
 
-	out = {
-		"data": data
-	}
-
-	return out
+	return data
 
 @frappe.whitelist()
 def hide_module(module):

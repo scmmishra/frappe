@@ -36,7 +36,6 @@ export default class ModulesPage {
 		this.make_container();
 		this.setup_loading();
 		this.get_moduleview_data().then(() => {
-			this.process_data();
 			this.hide_loading();
 			this.setup_customize_button();
 			this.make_sections();
@@ -44,31 +43,30 @@ export default class ModulesPage {
 	}
 
 	get_moduleview_data() {
+		const process_data = data => {
+			data.forEach(widget => {
+				widget.name = frappe.scrub(widget.title || widget.label);
+				widget.options = {
+					links: widget.items.map(item => {
+						item.route = generate_route(item);
+						return item;
+					})
+				};
+				widget.type = "module_details";
+				widget.width = "auto";
+				delete widget.items;
+			});
+
+			return data;
+		};
+
 		return frappe
 			.call("frappe.desk.moduleview.get", {
 				module: this.module_name
 			})
 			.then(res => {
-				let data = res.message.data;
-				data.forEach(item => {
-					item.title = item.label;
-					item.type = "module_details";
-				});
-				this.moduleview_data = res.message.data;
-				this.process_data();
+				this.moduleview_data = process_data(res.message);
 			});
-	}
-
-	process_data() {
-		frappe.module_links[this.module_name] = [];
-
-		this.moduleview_data.forEach(section => {
-			section.name = frappe.scrub(section.title)
-			section.items.forEach(item => {
-				item.route = generate_route(item);
-				// item.name = frappe.scrub(item.title);
-			});
-		});
 	}
 
 	make_container() {
@@ -89,17 +87,20 @@ export default class ModulesPage {
 	}
 
 	setup_customize_button() {
-		this.customize_button = this.page.set_secondary_action("Customize", () => {
-			this.customize();
-		})
+		this.customize_button = this.page.set_secondary_action(
+			"Customize",
+			() => {
+				this.customize();
+			}
+		);
 	}
 
 	customize() {
-		this.customize_button.remove()
+		this.customize_button.remove();
 		this.sections.dashboard.customize();
 		this.canel = this.page.set_secondary_action("Customize", () => {
 			this.customize();
-		})
+		});
 	}
 
 	hide_loading() {
@@ -107,39 +108,9 @@ export default class ModulesPage {
 	}
 
 	make_sections() {
-		this.sections["dashboard"] = new DeskSection({
-			hide_title: true,
-			options: {},
-			widget_config: [
-				{
-					module_name: "rohit",
-					name: "rohit",
-					label: "Sales Invoice",
-					title: "Some Data",
-					type: "chart",
-					chart_name: "Sales Inv",
-					width: 'one-third'
-				},
-				{
-					module_name: "thanos",
-					name: "thanos",
-					label: "Purhcase Invoice",
-					title: "Some Data",
-					type: "chart",
-					chart_name: "Sales Inv",
-					width: 'two-third'
-				}
-			],
-			container: this.cards_container,
-			sortable_config: {
-				enable: true
-			},
-			auto_grid: true
-		});
-
 		this.sections["module_items"] = new DeskSection({
 			title: "Module Items",
-			hide_title: false,
+			hide_title: true,
 			options: {},
 			widget_config: this.moduleview_data,
 			container: this.cards_container,
