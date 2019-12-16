@@ -108,13 +108,20 @@ def filter_by_restrict_to_domain(data):
 	}
 	active_domains = frappe.get_active_domains()
 
+	doctypes = frappe.get_all("DocType", filters={'restrict_to_domain': ('IN', active_domains)})
+	pages = frappe.get_all("Page", filters={'restrict_to_domain': ('IN', active_domains)})
+
+	doctypes = [doc.name for doc in doctypes]
+	pages = [page.name for page in pages]
+
 	for d in data:
 		_items = []
 		for item in d.get("items", []):
-			doctype = mapper.get(item.get("type"))
 
-			doctype_domain = frappe.db.get_value(doctype, item.get("name"), "restrict_to_domain") or ''
-			if not doctype_domain or (doctype_domain in active_domains):
+			item_type = item.get("type")
+			item_name = item.get("name")
+
+			if (item_name in pages) or (item_name in doctypes) or item_type == 'report':
 				_items.append(item)
 
 		d.update({ "items": _items })
