@@ -25,6 +25,12 @@ def hide_module(module):
 	set_hidden(module, frappe.session.user, 1)
 	clear_desktop_icons_cache()
 
+def get_table_with_counts(cache=False):
+	data = frappe.db.sql("""select table_name as name, table_rows as count from information_schema.tables""", as_dict=1)
+	counts = {d.get('name').lstrip('tab'): d.get('count', None) for d in data}
+
+	return counts
+
 def get_data(module, build=True):
 	"""Get module data for the module view `desk/#Module/[name]`"""
 	doctype_info = get_doctype_info(module)
@@ -44,7 +50,7 @@ def get_data(module, build=True):
 	# set_last_modified(data)
 
 	if build:
-		exists_cache = {}
+		exists_cache = get_table_with_counts()
 		def doctype_contains_a_record(name):
 			exists = exists_cache.get(name)
 			if not exists:
