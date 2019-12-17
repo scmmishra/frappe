@@ -13,8 +13,18 @@ def get(module):
 	"""Returns data (sections, list of reports, counts) to render module view in desk:
 	`/desk/#Module/[name]`."""
 	data = get_data(module)
+	dashboard = get_dashboards(module)
 
-	return data
+	return { 'data': data, 'dashboard': dashboard }
+
+def get_dashboards(module):
+	def get_from_db():
+		settings = frappe.db.get_value("User", frappe.session.user, 'home_settings')
+		return frappe.parse_json(settings or '{}')
+
+	settings = frappe.cache().hget('home_settings', frappe.session.user, get_from_db)
+	charts = settings.get('module_charts', {})
+	return charts.get(module, [])
 
 @frappe.whitelist()
 def hide_module(module):
@@ -279,7 +289,6 @@ def get_setup_section(app, module, label, icon):
 				"icon": icon,
 				"items": section["items"]
 			}
-
 
 def get_onboard_items(app, module):
 	try:

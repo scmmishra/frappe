@@ -193,7 +193,7 @@ def get_home_settings():
 		return frappe.parse_json(settings or '{}')
 
 	home_settings = frappe.cache().hget('home_settings', frappe.session.user, get_from_db)
-	return home_settings
+	return frappe._dict(home_settings)
 
 
 def get_module_link_items_from_list(app, module, list_of_link_names):
@@ -239,3 +239,15 @@ def get_last_modified(doctype):
 		last_modified = None
 
 	return last_modified
+
+@frappe.whitelist()
+def add_charts_for_module(module, data):
+	home_settings = get_home_settings()
+
+	module_charts = home_settings.get('module_charts', {})
+	module_charts[module] = json.loads(data)
+
+	home_settings['module_charts'] = module_charts
+	set_home_settings(home_settings)
+
+	return module_charts
