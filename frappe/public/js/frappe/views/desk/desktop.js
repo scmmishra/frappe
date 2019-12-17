@@ -57,6 +57,7 @@ export default class Desk {
 			.call("frappe.desk.desktop.get_desktop_settings")
 			.then(response => {
 				if (response.message) {
+					console.log(response.message);
 					this.categories = process_desktop_settings(
 						response.message
 					);
@@ -65,7 +66,7 @@ export default class Desk {
 	}
 
 	make_container() {
-		this.modules_section_container = $(`<div class="desk-modules-page-container">
+		this.modules_section_container = $(`<div class="desk-page-container">
 			<a class="btn-show-hide text-muted text-medium show-or-hide-cards">
 				${__("Show / Hide Cards")}
 			</a></div>`);
@@ -87,7 +88,7 @@ export default class Desk {
 						enable: true,
 						after_sort: container => {
 							let modules = Array.from(
-								container.querySelectorAll(".module-box")
+								container.querySelectorAll(".widget-box")
 							).map(node => node.dataset.moduleName);
 
 							frappe.call(

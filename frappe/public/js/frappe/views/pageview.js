@@ -1,7 +1,5 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // MIT License. See license.txt
-
-import Desktop from './components/Desktop.vue';
 import Desk from './desk/desktop.js'
 import ModulesPage from './desk/modules.js'
 
@@ -183,18 +181,8 @@ frappe.views.ModulesFactory = class ModulesFactory extends frappe.views.Factory 
 	}
 
 	make(page_name) {
-		const assets = [
-			'/assets/js/modules.min.js'
-		];
-
-		frappe.require(assets, () => {
-			// frappe.modules.home = new frappe.modules.Home({
-			// 	parent: this.make_page(true, page_name)
-			// });
-
-			new ModulesPage({
-				parent: this.make_page(true, page_name)
-			});
+		new ModulesPage({
+			parent: this.make_page(true, page_name)
 		});
 	}
 };

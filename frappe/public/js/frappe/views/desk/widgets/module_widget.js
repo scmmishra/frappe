@@ -16,7 +16,7 @@ export default class ModuleWidget extends LinkWidget {
 
 		this.dropdown = this.get_dropdown_body();
 
-		let wrapper = this.widget.find(".module-box-content-wrapper");
+		let wrapper = this.widget.find(".widget-content");
 		this.dropdown.appendTo(wrapper);
 
 		this.dropdown_button = this.dropdown.find(".octicon-chevron-down");
