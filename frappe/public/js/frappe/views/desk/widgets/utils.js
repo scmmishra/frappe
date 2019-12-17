@@ -45,22 +45,12 @@ function generate_route(item) {
 	return route;
 }
 
-export { generate_route };
-
 function generate_grid(data) {
 	function add(a, b) {
 		return a + b;
 	}
 
 	const grid_max_cols = 6
-
-	const width_map = {
-		'one-third': 2,
-		'two-third': 4,
-		'half': 3,
-		'full': 6
-	}
-
 
 	// Split the data into multiple arrays
 	// Each array will contain grid elements of one row
@@ -103,3 +93,5 @@ function generate_grid(data) {
 
 	return grid_template_area
 }
+
+export { generate_route, generate_grid };

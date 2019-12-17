@@ -13,13 +13,13 @@ export default class LinkWidget extends Widget {
 	}
 
 	make_widget() {
-		this.widget = $(`<div class="border module-box" data-module-name="${
+		this.widget = $(`<div class="widget-box col-sm-4" data-module-name="${
 			this.name
 		}" tab-index="10">
 			<div class="flush-top">
-				<div class="module-box-content">
-					<div class="level module-box-content-wrapper">
-						<a class="module-box-link" href="${this.get_link()}">
+				<div class="widget border">
+					<div class="level widget-content">
+						<a class="widget-link" href="${this.get_link()}">
 							<h4 class="h4">
 							<div>
 								<i class="${

@@ -18,22 +18,37 @@ export default class Widget {
 		this.setup_events();
 	}
 
+	get_grid() {
+		if (!this.auto_grid)
+			return 'col-sm-4'
+
+		const width_map = {
+			'One Third': 'col-sm-4',
+			'Two Third': 'col-sm-8 ',
+			'Half': 'col-sm-6',
+			'Full': 'col-sm-12',
+			'auto': 'col-sm-4'
+		}
+
+		return width_map[this.width] || 'One Third'
+	}
+
 	make_widget() {
-		this.widget = $(`<div class="border widget-box">
-			<div class="widget-action-area">
-				<h4 class="h4 widget-title"></h4>
-				<div class="widget-action"></div>
-			</div>
-		    <div class="widget-body">
-		    </div
+		console.log(this.get_grid())
+		this.widget = $(`<div class="widget-box ${this.get_grid()}">
+			<div class="widget border">
+				<div class="widget-action-area">
+					<h4 class="h4 widget-title"></h4>
+					<div class="widget-action"></div>
+				</div>
+			    <div class="widget-body">
+			    </div>
+		    </div>
 		</div>`);
 
 		this.title_field = this.widget.find(".widget-title");
 		this.body = this.widget.find(".widget-body");
 		this.action_area = this.widget.find(".widget-action")
-		if(this.options.auto_grid) {
-			this.widget.css('grid-area', this.data.name);
-		}
 		this.set_title();
 		this.set_actions();
 		this.set_body();
