@@ -9,89 +9,125 @@ export default class DeskSection {
 		this.make();
 	}
 
-	make() {
-		this.make_container();
-		// this.auto_grid ? this.build_grid() : this.setup_grid();
-		this.make_module_widget();
-		this.sortable_config.enable && this.setup_sortable();
-	}
-
 	refresh() {
 		this.widgets_container.empty()
 		this.make()
 	}
 
-	build_grid() {
-		console.log("building grid")
-		const width_map = {
-			'One Third': 2,
-			'Two Third': 4,
-			'Half': 3,
-			'Full': 6
-		}
-
-		let data = this.widget_config.map((widget, index) => {
-			return {
-				name: widget.name || `grid`,
-				columns: width_map[widget.width] || 2,
-				rows: 1
-			}
-		})
-
-		let grid_template_area = generate_grid(data)
-
-		this.widgets_container.css('grid-template-columns','repeat(6, 1fr)')
-		this.widgets_container.css('grid-template-areas', grid_template_area)
+	make() {
+		this.customize_mode = 0;
+		this.prepare_container();
+		this.make_widgets();
+		this.sorting_enabled_by_default && this.setup_sortable();
 	}
 
-	make_container() {
-		const get_title = () => {
-			return `<div class="section-header level text-muted">
-				<div class="module-category h6 uppercase">${__(this.title)}</div>
-			</div>`;
-		};
-
+	prepare_container() {
 		this.section_container = $(`<div class="widgets-section">
-			${this.hide_title ? "" : get_title()}
+			<div class="section-header level text-muted">
+				<div class="module-category h6 uppercase">${__(this.title)}</div>
+			</div>
 			<div class="widgets-container row"></div>
 		</div>`);
 
+		this.section_header = this.section_container.find(".section-header")
 		this.widgets_container = this.section_container.find(
 			".widgets-container"
 		);
 
+		this.hide_title && this.hide_header();
+
 		this.section_container.appendTo(this.container);
 	}
 
-	make_module_widget() {
-		this.widget_config.forEach((wid, index) => {
-			let widget_class = get_widget_class(wid.type);
-			let widget = new widget_class({
-				container: this.widgets_container,
-				...wid,
-				auto_grid: this.auto_grid
-			});
+	show_header() {
+		this.section_header.show();
+	}
 
-			this.widgets[wid.module_name] = widget;
-			this.widgets_list.push(widget);
+	hide_header() {
+		this.section_header.hide();
+	}
+
+	add_widget(config) {
+		let widget_class = get_widget_class(config.type);
+
+		let widget = new widget_class({
+			container: this.widgets_container,
+			...config,
+			auto_grid: this.auto_grid
 		});
+
+		this.widgets[config.module_name] = widget;
+		this.widgets_list.push(widget);
+
+		return widget
+	}
+
+	make_widgets() {
+		if (this.widget_config.length) {
+			this.widget_config.forEach((wid, index) => {
+				this.add_widget(wid)
+			});
+		}
+	}
+
+	show_widgets() {
+		this.widgets_container.show();
+	}
+
+	hide_widgets() {
+		this.widgets_container.hide();
 	}
 
 	setup_sortable() {
 		const container = this.widgets_container[0];
 		this.sortable = new Sortable(container, {
+			handle: this.drag_handle || null,
 			animation: 150,
 			onEnd: () => {
-				this.sortable_config.after_sort && this.sortable_config.after_sort(container);
+				this.on_sort && this.on_sort(container);
 			},
-			// onChoose: (evt) => this.sortable_config.on_choose(evt, container),
-			// onStart: (evt) => this.sortable_config.on_start(evt, container)
 		});
 	}
 
 	customize() {
+		if (this.customize_mode) {
+			return
+		}
+		this.show_header()
+		const get_new_width = () => {
+			const width_map = {
+				'One Third': 2,
+				'Two Third': 4,
+				'Half': 3,
+				'Full': 6
+			}
+
+			const conv_width_map = {
+				2: 'One Third',
+				4: 'Two Third',
+				3: 'Half',
+				6: 'Full'
+			}
+
+			const data = this.widget_config.map((widget, index) => {
+				return {
+					name: widget.name || `grid`,
+					columns: width_map[widget.width] || 2
+				}
+			})
+
+			const total = data.reduce((acc, val) => acc + val, 0)
+			return conv_width_map[6 - total % 6]
+		}
+
+		console.log(get_new_width())
+
+		this.allow_creation && this.add_widget({ type: 'new', name: 'new', width: get_new_width()})
+		this.allow_sorting && this.setup_sortable()
+
 		this.widgets_list.forEach(wid => {
 			wid.customize();
 		});
+		this.customize_mode = 1;
 	}
 }

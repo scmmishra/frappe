@@ -107,71 +107,13 @@ export default class ModulesPage {
 	}
 
 	setup_customize_button() {
-		const label = this.chart_data.length
-			? "Customize"
-			: "Configure Dashboard";
+		// const label = this.chart_data.length
+		// 	? "Customize"
+		// 	: "Configure Dashboard";
+		const label = "Customize"
 		this.customize_button = this.page.set_secondary_action(label, () => {
-			// this.customize();
-			this.sections.dashboard.customize()
+			this.customize();
 		});
-	}
-
-	customize() {
-		const fields = [
-			{
-				fieldname: "charts",
-				fieldtype: "Table",
-				in_place_edit: true,
-				get_data: () => {
-					return this.data;
-				},
-				fields: [
-					{
-						fieldtype: "Link",
-						fieldname: "chart",
-						label: "Chart",
-						options: "Dashboard Chart",
-						in_list_view: 1
-					},
-					{
-						fieldtype: "Select",
-						fieldname: "width",
-						label: "Width",
-						options: "Full\nHalf\nOne Third\nTwo Third",
-						in_list_view: 1
-					}
-				]
-			}
-		];
-
-		const primary_action = () => {
-			let values = customize.get_value("charts").map(item => {
-				return {
-					chart: item.chart,
-					width: item.width
-				};
-			});
-			frappe
-				.call("frappe.desk.desktop.add_charts_for_module", {
-					module: this.module_name,
-					data: values
-				})
-				.then(res => {
-					customize.hide();
-					this.refresh();
-				});
-		};
-
-		let customize = new frappe.ui.Dialog({
-			title: this.chart_data.length
-				? "Customize Dashboard"
-				: "Add Charts",
-			fields: fields,
-			primary_action: primary_action,
-			primary_action_label: "Save"
-		});
-
-		customize.show();
 	}
 
 	hide_loading() {
@@ -179,40 +121,41 @@ export default class ModulesPage {
 	}
 
 	make_sections() {
-		if (this.chart_data.length) {
-			this.sections["dashboard"] = new DeskSection({
-				hide_title: true,
-				options: {},
-				widget_config: this.chart_data,
-				container: this.cards_container,
-				sortable_config: {
-					enable: true,
-					after_sort: function(container) {
+		this.sections["dashboard"] = new DeskSection({
+			title: `${this.module.label || this.module_name} Dashboard`,
+			hide_title: true,
+			allow_creation: true,
+			on_create: () => {
+				console.log('create')
+			},
 
-					},
-					on_choose: (evt, container) => {
-						console.log(evt)
-					},
-					on_start: (evt, container) => {
-						console.log("sort start")
-						this.sections.dashboard.modules_container.css('grid-template-areas', '')
-						this.sections.dashboard.build_grid()
-						console.log(evt);  // element index within parent
-					}
-				},
-				auto_grid: true
-			});
-		}
+			allow_deletion: true,
+			on_delete: () => {
+				console.log('delete')
+			},
+
+			allow_sorting: true,
+			sorting_enabled_by_default: false,
+			drag_handle: '.drag-handle',
+			on_sort: (container) => {
+				console.log(sort)
+			},
+
+			widget_config: this.chart_data,
+			container: this.cards_container,
+		});
 
 		this.sections["module_items"] = new DeskSection({
 			title: "Module Items",
 			hide_title: !this.chart_data.length,
-			options: {},
 			widget_config: this.moduleview_data,
 			container: this.cards_container,
-			sortable_config: {
-				enable: true
-			}
+			allow_sorting: true,
 		});
+	}
+
+	customize() {
+		this.sections.dashboard.customize()
+		this.sections["module_items"].customize()
 	}
 }

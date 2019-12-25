@@ -84,21 +84,21 @@ export default class Desk {
 					title: category,
 					widget_config: this.categories[category],
 					container: this.modules_section_container,
-					sortable_config: {
-						enable: true,
-						after_sort: container => {
-							let modules = Array.from(
-								container.querySelectorAll(".widget-box")
-							).map(node => node.dataset.moduleName);
+					allow_sorting: true,
+					sorting_enabled_by_default: true,
+					drag_handle: '.widget',
+					on_sort: container => {
+						let modules = Array.from(
+							container.querySelectorAll(".widget-box")
+						).map(node => node.dataset.moduleName);
 
-							frappe.call(
-								"frappe.desk.moduleview.update_modules_order",
-								{
-									module_category: category,
-									modules: modules
-								}
-							);
-						}
+						frappe.call(
+							"frappe.desk.moduleview.update_modules_order",
+							{
+								module_category: category,
+								modules: modules
+							}
+						);
 					}
 				});
 			}
