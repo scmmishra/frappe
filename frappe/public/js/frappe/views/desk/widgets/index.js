@@ -3,12 +3,14 @@ import LinkWidget from "./link_widget.js";
 import ModuleItemsWidget from "./module_items_widget.js";
 import ChartWidget from "./chart_widget.js";
 import BaseWidget from "./base_widget.js";
+import NewWidget from "./new_widget.js";
 
 const widget_factory = {
 	module: ModuleWidget,
 	link: LinkWidget,
 	module_details: ModuleItemsWidget,
-	chart: ChartWidget
+	chart: ChartWidget,
+	new: NewWidget
 };
 
 export function get_widget_class(widget_type) {
