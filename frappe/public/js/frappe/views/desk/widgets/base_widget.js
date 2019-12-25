@@ -9,7 +9,11 @@ export default class Widget {
 	}
 
 	customize() {
-
+		this.action_area.empty()
+		const buttons = $(`<button style="cursor: move;" class="btn btn-secondary btn-default btn-xs drag-handle ml-2">
+				<i class="fa fa-bars" aria-hidden="true"></i>
+			</button>`);
+		buttons.appendTo(this.action_area);
 	}
 
 	make() {
@@ -30,11 +34,10 @@ export default class Widget {
 			'auto': 'col-sm-4'
 		}
 
-		return width_map[this.width] || 'One Third'
+		return width_map[this.width] || 'col-sm-4'
 	}
 
 	make_widget() {
-		console.log(this.get_grid())
 		this.widget = $(`<div class="widget-box ${this.get_grid()}">
 			<div class="widget border">
 				<div class="widget-action-area">

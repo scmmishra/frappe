@@ -11,6 +11,7 @@ export default class ChartWidget extends Widget {
 	}
 
 	customize() {
+		super.customize();
 		this.setup_customize_actions();
 	}
 
@@ -35,9 +36,7 @@ export default class ChartWidget extends Widget {
 	}
 
 	setup_customize_actions() {
-		this.action_area.empty()
-		const buttons = $(`<button type="button" class="btn btn-xs btn-secondary btn-default selected">Resize</button>
-					<button class="btn btn-secondary btn-light btn-danger btn-xs"><i class="fa fa-trash" aria-hidden="true"></i></button>`);
+		const buttons = $(`<button class="btn btn-secondary btn-light btn-danger btn-xs ml-2"><i class="fa fa-trash" aria-hidden="true"></i></button>`);
 		buttons.appendTo(this.action_area);
 	}
 

@@ -1171,6 +1171,10 @@ body.no-sidebar {
 		overflow: hidden;
 	}
 
+	.ml-2 {
+		margin-left: 4px !important;
+	}
+
 	.relative {
 		position: relative;
 	}
@@ -1194,6 +1198,10 @@ body.no-sidebar {
 	}
 	.z-20 {
 		z-index: 20;
+	}
+
+	.drag-handle {
+
 	}
 }
 
@@ -1356,6 +1364,22 @@ body.no-sidebar {
 		height: 250px;
 		margin-top: 8px;
 		border-radius: 4px;
+	}
+
+	.new-widget {
+		background-color: @light-bg;
+		border-radius: 4px;
+		min-height: 250px;
+		border: none;
+		display: flex;
+		align-items: center;
+    	justify-content: center;
+    	cursor: pointer;
+    	color: @text-muted;
+	}
+
+	.new-widget:hover {
+		background-color: @btn-bg;
 	}
 
 	.h4 {
