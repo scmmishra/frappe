@@ -23,9 +23,6 @@ export default class Widget {
 	}
 
 	get_grid() {
-		if (!this.auto_grid)
-			return 'col-sm-4'
-
 		const width_map = {
 			'One Third': 'col-sm-4',
 			'Two Third': 'col-sm-8 ',

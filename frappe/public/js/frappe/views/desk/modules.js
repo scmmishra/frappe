@@ -35,7 +35,7 @@ export default class ModulesPage {
 
 	refresh() {
 		this.cards_container.empty();
-		this.make();
+		this.make_sections();
 	}
 
 	make() {
@@ -110,10 +110,100 @@ export default class ModulesPage {
 		// const label = this.chart_data.length
 		// 	? "Customize"
 		// 	: "Configure Dashboard";
-		const label = "Customize"
+		const label = "Customize";
 		this.customize_button = this.page.set_secondary_action(label, () => {
 			this.customize();
 		});
+	}
+
+	save_custimizations() {
+		//
+	}
+
+	add_chart() {
+		function preview_chart() {
+			const wrapper = $(
+				add_chart_dialog.fields_dict["chart_preview"].wrapper
+			);
+			const values = add_chart_dialog.get_values(true);
+			if (!values.chart) return;
+			frappe.model
+				.with_doc("Dashboard Chart", values.chart)
+				.then(chart_doc => {
+					wrapper.empty();
+					chart_doc.width = null;
+					let dashboard_chart = new frappe.ui.DashboardChart(
+						chart_doc,
+						wrapper,
+						{
+							hide_title: true,
+							hide_last_sync: true,
+							hide_actions: true
+						}
+					);
+					dashboard_chart.show();
+				});
+		}
+
+		function _add_chart(data) {
+			//
+		}
+
+		const fields = [
+			{
+				fieldname: "chart",
+				label: "Select Chart",
+				fieldtype: "Link",
+				options: "Dashboard Chart",
+				onchange: preview_chart
+			},
+			{
+				fieldname: "cb_1",
+				fieldtype: "Column Break"
+			},
+			{
+				fieldname: "width",
+				label: "Choose Width",
+				fieldtype: "Select",
+				default: "Full",
+				options: "Full\nHalf\nOne Third\nTwo Third"
+			},
+			{
+				fieldname: "sb_1",
+				fieldtype: "Section Break",
+				label: "Preview"
+			},
+			{
+				fieldname: "chart_preview",
+				label: "Chart Preview",
+				fieldtype: "HTML"
+			}
+		];
+
+		const add_chart_dialog = new frappe.ui.Dialog({
+			title: __("Add Dashboard"),
+			fields: fields,
+			primary_action: values => {
+				this.chart_data.push({
+					label: values.chart,
+					type: "chart",
+					width: values.width,
+					options: {
+						chart_name: values.chart
+					}
+				})
+				this.refresh();
+				this.customize();
+				add_chart_dialog.hide();
+			},
+			primary_action_label: "Add"
+		});
+
+		add_chart_dialog.show();
+		let wrapper = $(add_chart_dialog.fields_dict["chart_preview"].wrapper);
+		wrapper[0].innerHTML = `<div class="flex justify-center align-center text-muted" style="height: 120px; display: flex;">
+			<div>Select Chart for Preview</div>
+		</div>`;
 	}
 
 	hide_loading() {
@@ -126,23 +216,23 @@ export default class ModulesPage {
 			hide_title: true,
 			allow_creation: true,
 			on_create: () => {
-				console.log('create')
+				this.add_chart();
 			},
 
 			allow_deletion: true,
 			on_delete: () => {
-				console.log('delete')
+				console.log("delete");
 			},
 
 			allow_sorting: true,
 			sorting_enabled_by_default: false,
-			drag_handle: '.drag-handle',
-			on_sort: (container) => {
-				console.log(sort)
+			drag_handle: ".drag-handle",
+			on_sort: container => {
+				console.log('sort');
 			},
 
 			widget_config: this.chart_data,
-			container: this.cards_container,
+			container: this.cards_container
 		});
 
 		this.sections["module_items"] = new DeskSection({
@@ -150,12 +240,12 @@ export default class ModulesPage {
 			hide_title: !this.chart_data.length,
 			widget_config: this.moduleview_data,
 			container: this.cards_container,
-			allow_sorting: true,
+			allow_sorting: true
 		});
 	}
 
 	customize() {
-		this.sections.dashboard.customize()
-		this.sections["module_items"].customize()
+		this.sections.dashboard.customize();
+		this.sections["module_items"].customize();
 	}
 }

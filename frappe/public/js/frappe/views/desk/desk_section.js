@@ -53,10 +53,9 @@ export default class DeskSection {
 		let widget = new widget_class({
 			container: this.widgets_container,
 			...config,
-			auto_grid: this.auto_grid
 		});
 
-		this.widgets[config.module_name] = widget;
+		this.widgets[config.name] = widget;
 		this.widgets_list.push(widget);
 
 		return widget
@@ -93,6 +92,7 @@ export default class DeskSection {
 		if (this.customize_mode) {
 			return
 		}
+
 		this.show_header()
 		const get_new_width = () => {
 			const width_map = {
@@ -120,9 +120,7 @@ export default class DeskSection {
 			return conv_width_map[6 - total % 6]
 		}
 
-		console.log(get_new_width())
-
-		this.allow_creation && this.add_widget({ type: 'new', name: 'new', width: get_new_width()})
+		this.allow_creation && this.add_widget({ type: 'new', name: 'new', width: get_new_width(), on_create: this.on_create })
 		this.allow_sorting && this.setup_sortable()
 
 		this.widgets_list.forEach(wid => {

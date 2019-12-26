@@ -30,8 +30,10 @@ frappe.ui.DashboardChart = class DashboardChart {
 			"Half": "6",
 			"Full": "12",
 		};
-		let columns = column_width_map[this.chart_doc.width];
-		this.chart_container = $(`<div class="col-sm-${columns} chart-column-container">
+
+		const column_class = column_width_map[this.chart_doc.width];
+		let columns = column_class ? `col-sm-${column_class}` : '';
+		this.chart_container = $(`<div class="${columns} chart-column-container">
 			<div class="chart-wrapper">
 				<div class="chart-loading-state text-muted">${__("Loading...")}</div>
 				<div class="chart-empty-state hide text-muted">${__("No Data")}</div>
