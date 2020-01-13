@@ -31,7 +31,7 @@ export default class NewWidget {
 	}
 
 	make_widget() {
-		this.widget = $(`<div class="widget-box ${this.get_grid()}">
+		this.widget = $(`<div class="widget-box ${this.get_grid()}" data-widget-name="${this.name}">
 			<div class="widget border new-widget">
 			    Add Widget
 		    </div>

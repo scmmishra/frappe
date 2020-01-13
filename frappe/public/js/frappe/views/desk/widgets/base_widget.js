@@ -10,10 +10,23 @@ export default class Widget {
 
 	customize() {
 		this.action_area.empty()
-		const buttons = $(`<button style="cursor: move;" class="btn btn-secondary btn-default btn-xs drag-handle ml-2">
+		if (this.allow_sorting) {
+			const drag_handle = $(`<button style="cursor: move;" class="btn btn-secondary btn-default btn-xs drag-handle ml-2">
 				<i class="fa fa-bars" aria-hidden="true"></i>
 			</button>`);
-		buttons.appendTo(this.action_area);
+			drag_handle.appendTo(this.action_area);
+		}
+
+		if (this.allow_delete) {
+			const delete_button = $(`<button class="btn btn-secondary btn-light btn-danger btn-xs ml-2"><i class="fa fa-trash" aria-hidden="true"></i></button>`);
+			delete_button.on('click', () => this.remove())
+			delete_button.appendTo(this.action_area);
+		}
+	}
+
+	remove() {
+		this.widget.remove()
+		this.on_delete && this.on_delete(this.name)
 	}
 
 	make() {
@@ -35,7 +48,9 @@ export default class Widget {
 	}
 
 	make_widget() {
-		this.widget = $(`<div class="widget-box ${this.get_grid()}">
+		this.widget = $(`<div class="widget-box ${this.get_grid()}"
+				data-widget-name="${this.name}"
+			>
 			<div class="widget border">
 				<div class="widget-action-area">
 					<h4 class="h4 widget-title"></h4>

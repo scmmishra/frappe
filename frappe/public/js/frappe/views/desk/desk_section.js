@@ -10,8 +10,8 @@ export default class DeskSection {
 	}
 
 	refresh() {
-		this.widgets_container.empty()
-		this.make()
+		this.widgets_container.empty();
+		this.make();
 	}
 
 	make() {
@@ -29,7 +29,7 @@ export default class DeskSection {
 			<div class="widgets-container row"></div>
 		</div>`);
 
-		this.section_header = this.section_container.find(".section-header")
+		this.section_header = this.section_container.find(".section-header");
 		this.widgets_container = this.section_container.find(
 			".widgets-container"
 		);
@@ -47,24 +47,42 @@ export default class DeskSection {
 		this.section_header.hide();
 	}
 
+	get_current_config() {
+		const container = this.widgets_container[0];
+		let widgets = Array.from(
+			container.querySelectorAll(".widget-box")
+		).map(node => node.dataset.widgetName);
+		return {order: widgets, config: this.widgets_list }
+	}
+
 	add_widget(config) {
 		let widget_class = get_widget_class(config.type);
 
 		let widget = new widget_class({
 			container: this.widgets_container,
 			...config,
+			allow_delete: this.allow_delete || false,
+			on_delete: widget_name => this.delete_widget(widget_name),
+			allow_sorting: this.allow_sorting || false
 		});
 
 		this.widgets[config.name] = widget;
 		this.widgets_list.push(widget);
 
-		return widget
+		return widget;
+	}
+
+	delete_widget(widget_name) {
+		delete this.widgets[widget_name];
+		this.widget_list = this.widgets_list.filter(
+			widget => widget.name != widget_name
+		);
 	}
 
 	make_widgets() {
 		if (this.widget_config.length) {
 			this.widget_config.forEach((wid, index) => {
-				this.add_widget(wid)
+				this.add_widget(wid);
 			});
 		}
 	}
@@ -84,44 +102,50 @@ export default class DeskSection {
 			animation: 150,
 			onEnd: () => {
 				this.on_sort && this.on_sort(container);
-			},
+			}
 		});
 	}
 
 	customize() {
 		if (this.customize_mode) {
-			return
+			return;
 		}
 
-		this.show_header()
+		this.show_header();
 		const get_new_width = () => {
 			const width_map = {
-				'One Third': 2,
-				'Two Third': 4,
-				'Half': 3,
-				'Full': 6
-			}
+				"One Third": 2,
+				"Two Third": 4,
+				Half: 3,
+				Full: 6
+			};
 
 			const conv_width_map = {
-				2: 'One Third',
-				4: 'Two Third',
-				3: 'Half',
-				6: 'Full'
-			}
+				2: "One Third",
+				4: "Two Third",
+				3: "Half",
+				6: "Full"
+			};
 
 			const data = this.widget_config.map((widget, index) => {
 				return {
 					name: widget.name || `grid`,
 					columns: width_map[widget.width] || 2
-				}
-			})
+				};
+			});
 
-			const total = data.reduce((acc, val) => acc + val, 0)
-			return conv_width_map[6 - total % 6]
-		}
+			const total = data.reduce((acc, val) => acc + val, 0);
+			return conv_width_map[6 - (total % 6)];
+		};
 
-		this.allow_creation && this.add_widget({ type: 'new', name: 'new', width: get_new_width(), on_create: this.on_create })
-		this.allow_sorting && this.setup_sortable()
+		this.allow_create &&
+			this.add_widget({
+				type: "new",
+				name: "new",
+				width: get_new_width(),
+				on_create: this.on_create
+			});
+		this.allow_sorting && this.setup_sortable();
 
 		this.widgets_list.forEach(wid => {
 			wid.customize();

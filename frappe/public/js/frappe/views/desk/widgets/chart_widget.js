@@ -10,11 +10,6 @@ export default class ChartWidget extends Widget {
 		//
 	}
 
-	customize() {
-		super.customize();
-		this.setup_customize_actions();
-	}
-
 	make_chart() {
 		this.body.empty()
 		frappe.model.with_doc("Dashboard Chart", this.options.chart_name).then(chart_doc => {
@@ -33,11 +28,6 @@ export default class ChartWidget extends Widget {
 
 	setup_events() {
 		//
-	}
-
-	setup_customize_actions() {
-		const buttons = $(`<button class="btn btn-secondary btn-light btn-danger btn-xs ml-2"><i class="fa fa-trash" aria-hidden="true"></i></button>`);
-		buttons.appendTo(this.action_area);
 	}
 
 	set_actions() {

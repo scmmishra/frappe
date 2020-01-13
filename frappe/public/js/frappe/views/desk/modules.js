@@ -8,7 +8,7 @@ export default class ModulesPage {
 
 		this.init();
 		this.sections = {};
-
+		this.sections_list = [];
 		this.setup_header();
 		this.make();
 		window.mod = this;
@@ -34,7 +34,9 @@ export default class ModulesPage {
 	}
 
 	refresh() {
+		this.page.clear_actions();
 		this.cards_container.empty();
+		this.setup_customize_button();
 		this.make_sections();
 	}
 
@@ -106,18 +108,69 @@ export default class ModulesPage {
 		this.loading.appendTo(this.cards_container);
 	}
 
+	hide_loading() {
+		this.loading && this.loading.remove();
+	}
+
+	make_sections() {
+		this.sections.dashboard = new DeskSection({
+			title: `${this.module.label || this.module_name} Dashboard`,
+			hide_title: true,
+			allow_create: true,
+			on_create: () => {
+				this.add_chart();
+			},
+
+			allow_delete: true,
+			on_delete: () => {
+				console.log("delete");
+			},
+
+			allow_sorting: true,
+			sorting_enabled_by_default: false,
+			drag_handle: ".drag-handle",
+			on_sort: container => {
+				console.log('sort');
+			},
+
+			widget_config: this.chart_data,
+			container: this.cards_container
+		});
+
+		this.sections.module_items = new DeskSection({
+			title: "Module Items",
+			hide_title: !this.chart_data.length,
+			widget_config: this.moduleview_data,
+			container: this.cards_container,
+			allow_sorting: true
+		});
+
+		this.sections_list.push(this.sections.dashboard);
+		this.sections_list.push(this.sections.module_items);
+	}
+
 	setup_customize_button() {
-		// const label = this.chart_data.length
-		// 	? "Customize"
-		// 	: "Configure Dashboard";
 		const label = "Customize";
-		this.customize_button = this.page.set_secondary_action(label, () => {
+		this.page.set_secondary_action(label, () => {
 			this.customize();
 		});
 	}
 
+	customize() {
+		this.page.set_primary_action('Save Customizations', () => {
+			this.save_custimizations();
+		});
+		this.page.set_secondary_action('Discard', () => {
+			this.refresh();
+		});
+		this.sections.dashboard.customize();
+		this.sections["module_items"].customize();
+	}
+
 	save_custimizations() {
-		//
+		this.sections_list.forEach(section => {
+			console.log(section.get_current_config())
+		})
 	}
 
 	add_chart() {
@@ -204,48 +257,5 @@ export default class ModulesPage {
 		wrapper[0].innerHTML = `<div class="flex justify-center align-center text-muted" style="height: 120px; display: flex;">
 			<div>Select Chart for Preview</div>
 		</div>`;
-	}
-
-	hide_loading() {
-		this.loading && this.loading.remove();
-	}
-
-	make_sections() {
-		this.sections["dashboard"] = new DeskSection({
-			title: `${this.module.label || this.module_name} Dashboard`,
-			hide_title: true,
-			allow_creation: true,
-			on_create: () => {
-				this.add_chart();
-			},
-
-			allow_deletion: true,
-			on_delete: () => {
-				console.log("delete");
-			},
-
-			allow_sorting: true,
-			sorting_enabled_by_default: false,
-			drag_handle: ".drag-handle",
-			on_sort: container => {
-				console.log('sort');
-			},
-
-			widget_config: this.chart_data,
-			container: this.cards_container
-		});
-
-		this.sections["module_items"] = new DeskSection({
-			title: "Module Items",
-			hide_title: !this.chart_data.length,
-			widget_config: this.moduleview_data,
-			container: this.cards_container,
-			allow_sorting: true
-		});
-	}
-
-	customize() {
-		this.sections.dashboard.customize();
-		this.sections["module_items"].customize();
 	}
 }
