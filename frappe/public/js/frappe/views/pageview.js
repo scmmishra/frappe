@@ -1,6 +1,6 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // MIT License. See license.txt
-import Desk from './desk/desktop.js'
+import Desk from './desk/new-desktop.js'
 import ModulesPage from './desk/modules.js'
 
 frappe.provide('frappe.views.pageview');

@@ -13,7 +13,7 @@ export default class ChartWidget extends Widget {
 	make_chart() {
 		this.body.empty()
 		frappe.model.with_doc("Dashboard Chart", this.options.chart_name).then(chart_doc => {
-			chart_doc.width = 'Full'
+			chart_doc.width = null;
 			let dashboard_chart = new frappe.ui.DashboardChart(chart_doc, this.body, { hide_title: true, hide_last_sync: true, hide_actions: true });
 			dashboard_chart.show();
 		});

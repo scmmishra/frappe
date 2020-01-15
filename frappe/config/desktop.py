@@ -28,7 +28,7 @@ def get_data():
 		{
 			"module_name": "Users and Permissions",
 			"category": "Administration",
-			"label": _("Users and Permissions"),
+			"label": _("Users Management"),
 			"color": "#bdc3c7",
 			"reverse": 1,
 			"icon": "octicon octicon-settings",
