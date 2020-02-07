@@ -173,7 +173,8 @@ frappe.ui.keys.add_shortcut({
 frappe.ui.keys.add_shortcut({
 	shortcut: 'ctrl+g',
 	action: function(e) {
-		$("#navbar-search").focus();
+		// $("#navbar-search").focus();
+		frappe.searchdialog.search.init_search()
 		e.preventDefault();
 		return false;
 	},
