@@ -164,7 +164,7 @@ frappe.search.SearchDialog = Class.extend({
 
 	},
 
-	init_search: function(keywords, search_type) {
+	init_search: function(keywords='', search_type='global_search') {
 		var me = this;
 		this.search = this.searches[search_type];
 		this.$input.attr("placeholder", this.search.input_placeholder);
