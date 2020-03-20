@@ -35,12 +35,17 @@ export default class Desktop {
 	make_container() {
 		this.container = $(`<div class="desk-container row">
 				<div class="desk-sidebar"></div>
-				<div class="desk-body"></div>
+				<div class="desk-body">
+					<span class="small customize-page">Customize Workspace</span>
+				</div>
 			</div>`);
 
 		this.container.appendTo(this.wrapper);
 		this.sidebar = this.container.find(".desk-sidebar");
 		this.body = this.container.find(".desk-body");
+		this.container.find(".customize-page").on('click', () => {
+			this.pages[this.current_page].customize();
+		})
 	}
 
 	show_loading_state() {
@@ -171,6 +176,7 @@ class DesktopPage {
 		this.sections = {};
 		this.allow_customization = false
 		this.make();
+		window.page = this;
 	}
 
 	show() {
@@ -252,6 +258,12 @@ class DesktopPage {
 		});
 	}
 
+	customize() {
+		Object.keys(this.sections).forEach(section => {
+			this.sections[section].customize();
+		})
+	}
+
 	make_charts() {
 		this.sections["charts"] = new WidgetGroup({
 			title: this.data.charts.label || `${this.page_name} Dashboard`,
@@ -259,6 +271,7 @@ class DesktopPage {
 			type: "chart",
 			columns: 1,
 			allow_sorting: false,
+			allow_create: 1,
 			widgets: this.data.charts.items
 		});
 	}
@@ -270,6 +283,7 @@ class DesktopPage {
 			type: "bookmark",
 			columns: 3,
 			allow_sorting: this.allow_customization && frappe.is_mobile(),
+			allow_create: 1,
 			widgets: this.data.shortcuts.items
 		});
 	}
@@ -281,6 +295,7 @@ class DesktopPage {
 			type: "links",
 			columns: 3,
 			allow_sorting: this.allow_customization && frappe.is_mobile(),
+			allow_create: 0,
 			widgets: this.data.cards.items
 		});
 

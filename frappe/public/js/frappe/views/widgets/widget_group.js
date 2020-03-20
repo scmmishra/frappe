@@ -3,13 +3,15 @@ import BaseWidget from "../widgets/base_widget";
 import ShortcutWidget from "../widgets/shortcut_widget";
 import LinksWidget from "../widgets/links_widget";
 import OnboardingWidget from "../widgets/onboarding_widget";
+import NewWidget from "../widgets/new_widget";
 
 const widget_factory = {
 	chart: ChartWidget,
 	base: BaseWidget,
 	bookmark: ShortcutWidget,
 	links: LinksWidget,
-	onboarding: OnboardingWidget
+	onboarding: OnboardingWidget,
+	new: NewWidget
 };
 
 export default class WidgetGroup {
@@ -29,6 +31,8 @@ export default class WidgetGroup {
 		// 	collapsible: false
 		// }
 		window.wid_area = this;
+		this.widgets_list = [];
+		this.widgets_dict = {};
 		this.make();
 	}
 
@@ -68,11 +72,33 @@ export default class WidgetGroup {
 		const widget_class = widget_factory[this.type];
 
 		this.widgets.forEach(widget => {
-			new widget_class({
+			let widget_object = new widget_class({
 				...widget,
-				container: this.body
-			})
+				container: this.body,
+				on_delete: (name) => this.on_delete(name)
+			});
+			this.widgets_list.push(widget_object);
+			this.widgets_dict[widget.name] = widget_object;
 		});
+	}
+
+	customize() {
+		const options = {
+			delete: this.allow_delete,
+			sort: this.allow_sorting
+		}
+
+		this.widgets_list.forEach(wid => {
+			wid.customize(options);
+		})
+
+		this.allow_create && new NewWidget({
+			container: this.body
+		})
+	}
+
+	on_delete(name) {
+		this.widgets_list = this.widgets_list.filter(wid => name != wid.name)
 	}
 
 	setup_sortable() {

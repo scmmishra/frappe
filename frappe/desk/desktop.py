@@ -109,7 +109,7 @@ class Workspace:
 		new_data = []
 		for section in cards:
 			new_items = []
-			if isinstance(section.links, str):
+			if type(section.links) == str:
 				links = json.loads(section.links)
 			else:
 				links = section.links
