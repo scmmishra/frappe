@@ -1,16 +1,16 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // MIT License. See license.txt
 
-frappe.ui.FilterList = Class.extend({
-	init: function(opts) {
+frappe.ui.FilterList = class FilterList {
+	constructor(opts) {
 		$.extend(this, opts);
 		this.filters = [];
 		this.wrapper = this.parent;
 		this.stats = [];
 		this.make();
 		this.set_events();
-	},
-	make: function() {
+	}
+	make() {
 		this.wrapper.find('.show_filters, .filter_area').remove();
 		this.wrapper.append(`
 			<div class="show_filters">
@@ -22,8 +22,8 @@ frappe.ui.FilterList = Class.extend({
 				</div>
 			</div>
 			<div class="filter_area"></div>`);
-	},
-	set_events: function() {
+	}
+	set_events() {
 		var me = this;
 		// show filters
 		this.wrapper.find('.new-filter').bind('click', function() {
@@ -36,17 +36,17 @@ frappe.ui.FilterList = Class.extend({
 			me.base_list.run();
 			$(this).addClass("hide");
 		});
-	},
+	}
 
-	show_filters: function() {
+	show_filters() {
 		this.wrapper.find('.show_filters').toggle();
 		if(!this.filters.length) {
 			this.add_filter(this.doctype, 'name');
 			this.filters[0].wrapper.find(".filter_field input").focus();
 		}
-	},
+	}
 
-	clear_filters: function() {
+	clear_filters() {
 		$.each(this.filters, function(i, f) { f.remove(true); });
 		if(this.base_list.page.fields_dict) {
 			$.each(this.base_list.page.fields_dict, (key, value) => {
@@ -54,9 +54,9 @@ frappe.ui.FilterList = Class.extend({
 			});
 		}
 		this.filters = [];
-	},
+	}
 
-	add_filter: function(doctype, fieldname, condition, value, hidden) {
+	add_filter(doctype, fieldname, condition, value, hidden) {
 		// adds a new filter, returns true if filter has been added
 
 		// allow equal to be used as like
@@ -107,8 +107,8 @@ frappe.ui.FilterList = Class.extend({
 		}
 
 		return true;
-	},
-	push_new_filter: function(doctype, fieldname, condition, value) {
+	}
+	push_new_filter(doctype, fieldname, condition, value) {
 		if(this.filter_exists(doctype, fieldname, condition, value)) {
 			return;
 		}
@@ -129,9 +129,9 @@ frappe.ui.FilterList = Class.extend({
 		this.filters.push(filter);
 
 		return filter;
-	},
+	}
 
-	remove: function(filter) {
+	remove(filter) {
 		// remove `filter` from flist
 		for (var i in this.filters) {
 			if (this.filters[i] === filter) {
@@ -142,9 +142,9 @@ frappe.ui.FilterList = Class.extend({
 			// remove index
 			this.filters.splice(i, 1);
 		}
-	},
+	}
 
-	filter_exists: function(doctype, fieldname, condition, value) {
+	filter_exists(doctype, fieldname, condition, value) {
 		var flag = false;
 		for(var i in this.filters) {
 			if(this.filters[i].field) {
@@ -158,9 +158,9 @@ frappe.ui.FilterList = Class.extend({
 			}
 		}
 		return flag;
-	},
+	}
 
-	get_filters: function() {
+	get_filters() {
 		// get filter values as dict
 		var values = [];
 		$.each(this.filters, function(i, filter) {
@@ -172,10 +172,10 @@ frappe.ui.FilterList = Class.extend({
 		this.base_list.update_standard_filters(values);
 
 		return values;
-	},
+	}
 
 	// remove hidden filters
-	update_filters: function() {
+	update_filters() {
 		var fl = [];
 		$.each(this.filters, function(i, f) {
 			if(f.field) fl.push(f);
@@ -184,16 +184,16 @@ frappe.ui.FilterList = Class.extend({
 		if(this.filters.length === 0) {
 			this.wrapper.find('.clear-filters').addClass("hide");
 		}
-	},
+	}
 
-	get_filter: function(fieldname) {
+	get_filter(fieldname) {
 		for(var i in this.filters) {
 			if(this.filters[i].field && this.filters[i].field.df.fieldname==fieldname)
 				return this.filters[i];
 		}
-	},
+	}
 
-	get_formatted_value: function(field, val){
+	get_formatted_value(field, val){
 		var value = val;
 
 		if(field.df.fieldname==="docstatus") {
@@ -205,22 +205,22 @@ frappe.ui.FilterList = Class.extend({
 		value = frappe.format(value, field.df, {only_value: 1});
 		return value;
 	}
-});
+}
 
-frappe.ui.Filter = Class.extend({
-	init: function(opts) {
+frappe.ui.Filter = class Filter {
+	constructor(opts) {
 		$.extend(this, opts);
 
 		this.doctype = this.flist.doctype;
 		this.make();
 		this.make_select();
 		this.set_events();
-	},
-	make: function() {
+	}
+	make() {
 		this.wrapper = $(frappe.render_template("edit_filter", {}))
 			.appendTo(this.flist.wrapper.find('.filter_area'));
-	},
-	make_select: function() {
+	}
+	make_select() {
 		var me = this;
 		this.fieldselect = new frappe.ui.FieldSelect({
 			parent: this.wrapper.find('.fieldname_select_area'),
@@ -233,8 +233,8 @@ frappe.ui.Filter = Class.extend({
 		if(this.fieldname) {
 			this.fieldselect.set_value(this._doctype || this.doctype, this.fieldname);
 		}
-	},
-	set_events: function() {
+	}
+	set_events() {
 		var me = this;
 
 		this.wrapper.find("a.remove-filter").on("click", function() {
@@ -273,17 +273,17 @@ frappe.ui.Filter = Class.extend({
 		} else {
 			me.set_field(me.doctype, 'name');
 		}
-	},
+	}
 
-	apply: function() {
+	apply() {
 		var f = this.get_value();
 
 		this.flist.remove(this);
 		this.flist.push_new_filter(f[0], f[1], f[2], f[3]);
 		this.remove();
-	},
+	}
 
-	remove: function(dont_run) {
+	remove(dont_run) {
 		this.wrapper.remove();
 		this.$btn_group && this.$btn_group.remove();
 		this.field = null;
@@ -292,9 +292,9 @@ frappe.ui.Filter = Class.extend({
 		if(!dont_run) {
 			this.flist.base_list.refresh(true);
 		}
-	},
+	}
 
-	set_values: function(doctype, fieldname, condition, value) {
+	set_values(doctype, fieldname, condition, value) {
 		// presents given (could be via tags!)
 		this.set_field(doctype, fieldname);
 
@@ -310,9 +310,9 @@ frappe.ui.Filter = Class.extend({
 		if(value!=null) {
 			return this.field.set_value(value);
 		}
-	},
+	}
 
-	set_field: function(doctype, fieldname, fieldtype, condition) {
+	set_field(doctype, fieldname, fieldtype, condition) {
 		var me = this;
 
 		// set in fieldname (again)
@@ -373,9 +373,9 @@ frappe.ui.Filter = Class.extend({
 				me.flist.base_list.run();
 			}
 		})
-	},
+	}
 
-	set_fieldtype: function(df, fieldtype) {
+	set_fieldtype(df, fieldtype) {
 		// reset
 		if(df.original_type)
 			df.fieldtype = df.original_type;
@@ -414,9 +414,9 @@ frappe.ui.Filter = Class.extend({
 		if(this.wrapper.find('.condition').val()== "Between" && (df.fieldtype == 'Date' || df.fieldtype == 'Datetime')){
 			df.fieldtype = 'DateRange';
 		}
-	},
+	}
 
-	set_default_condition: function(df, fieldtype) {
+	set_default_condition(df, fieldtype) {
 		if(!fieldtype) {
 			// set as "like" for data fields
 			if (df.fieldtype == 'Data') {
@@ -427,14 +427,14 @@ frappe.ui.Filter = Class.extend({
 				this.wrapper.find('.condition').val('=');
 			}
 		}
-	},
+	}
 
-	get_value: function() {
+	get_value() {
 		return [this.fieldselect.selected_doctype,
 			this.field.df.fieldname, this.get_condition(), this.get_selected_value()];
-	},
+	}
 
-	get_selected_value: function() {
+	get_selected_value() {
 		var val = this.field.get_value();
 
 		if(typeof val==='string') {
@@ -464,13 +464,13 @@ frappe.ui.Filter = Class.extend({
 		}
 
 		return val;
-	},
+	}
 
-	get_condition: function() {
+	get_condition() {
 		return this.wrapper.find('.condition').val();
-	},
+	}
 
-	freeze: function() {
+	freeze() {
 		if(this.$btn_group) {
 			// already made, just hide the condition setter
 			this.set_filter_button_text();
@@ -502,9 +502,9 @@ frappe.ui.Filter = Class.extend({
 			me.wrapper.toggle();
 		})
 		this.wrapper.toggle(false);
-	},
+	}
 
-	set_filter_button_text: function() {
+	set_filter_button_text() {
 		var value = this.get_selected_value();
 		value = this.flist.get_formatted_value(this.field, value);
 
@@ -518,13 +518,12 @@ frappe.ui.Filter = Class.extend({
 				value: __(value),
 			}));
 	}
-
-});
+}
 
 // <select> widget with all fields of a doctype as options
-frappe.ui.FieldSelect = Class.extend({
+frappe.ui.FieldSelect = class FieldSelect {
 	// opts parent, doctype, filter_fields, with_blank, select
-	init: function(opts) {
+	constructor(opts) {
 		var me = this;
 		$.extend(this, opts);
 		this.fields_by_name = {};
@@ -567,23 +566,23 @@ frappe.ui.FieldSelect = Class.extend({
 		}
 		this.set_value(this.doctype, "name");
 		window.last_filter = this;
-	},
-	get_value: function() {
+	}
+	get_value() {
 		return this.selected_doctype ? this.selected_doctype + "." + this.selected_fieldname : null;
-	},
-	val: function(value) {
+	}
+	val(value) {
 		if(value===undefined) {
 			return this.get_value();
 		} else {
 			this.set_value(value);
 		}
-	},
-	clear: function() {
+	}
+	clear() {
 		this.selected_doctype = null;
 		this.selected_fieldname = null;
 		this.$select.val("");
-	},
-	set_value: function(doctype, fieldname) {
+	}
+	set_value(doctype, fieldname) {
 		var me = this;
 		this.clear();
 		if(!doctype) return;
@@ -603,8 +602,8 @@ frappe.ui.FieldSelect = Class.extend({
 				return false;
 			}
 		});
-	},
-	build_options: function() {
+	}
+	build_options() {
 		var me = this;
 		me.table_fields = [];
 		var std_filters = $.map(frappe.model.std_fields, function(d) {
@@ -651,9 +650,9 @@ frappe.ui.FieldSelect = Class.extend({
 				});
 			}
 		});
-	},
+	}
 
-	add_field_option: function(df) {
+	add_field_option(df) {
 		var me = this;
 		if(me.doctype && df.parent==me.doctype) {
 			var label = __(df.label);
@@ -674,5 +673,5 @@ frappe.ui.FieldSelect = Class.extend({
 			if(!me.fields_by_name[df.parent]) me.fields_by_name[df.parent] = {};
 			me.fields_by_name[df.parent][df.fieldname] = df;
 		}
-	},
-})
+	}
+}
