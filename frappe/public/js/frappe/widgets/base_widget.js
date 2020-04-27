@@ -148,7 +148,7 @@ export default class Widget {
 		}
 		this.show_or_hide_button.empty();
 
-		const classname = this.hidden ? 'fa fa-eye' : 'fa fa-eye-slash';
+		const classname = this.hidden ? 'fa fa-eye-slash' : 'fa fa-eye';
 		$(`<i class="${classname}" aria-hidden="true"></i>`).appendTo(
 			this.show_or_hide_button
 		);
