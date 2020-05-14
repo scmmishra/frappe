@@ -32,6 +32,7 @@ def create_event_producer(producer_url):
 
 class TestEventProducer(unittest.TestCase):
 	def setUp(self):
+		self.skipTest()
 		self.producer_url = 'http://test_site_producer:8000'
 		create_event_producer(self.producer_url)
 		frappe.db.sql('delete from tabToDo')
