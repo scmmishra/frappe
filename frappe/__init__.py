@@ -535,6 +535,18 @@ def whitelist(allow_guest=False, xss_safe=False):
 
 	return innerfn
 
+def timing(f):
+	from functools import wraps
+	from time import time
+	@wraps(f)
+	def wrapper(*args, **kwargs):
+		start = time()
+		result = f(*args, **kwargs)
+		end = time()
+		print('{} took {} ms'.format(f.__name__, (end-start) * 1000))
+		return result
+	return wrapper
+
 def read_only():
 	def innfn(fn):
 		def wrapper_fn(*args, **kwargs):
