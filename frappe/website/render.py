@@ -7,6 +7,7 @@ from frappe import _
 import frappe.sessions
 from frappe.utils import cstr
 import os, mimetypes, json
+import functools
 import re
 
 import six
@@ -20,107 +21,159 @@ from frappe.website.context import get_context
 from frappe.website.redirect import resolve_redirect
 from frappe.website.utils import (get_home_page, can_cache, delete_page_cache,
 	get_toc, get_next_link)
+from frappe.website.static import is_static_file, get_static_file_response
 from frappe.website.router import clear_sitemap
 from frappe.translate import guess_language
 
+"""
+Website Router
+
+The request reaches router from app.py
+
+	response = frappe.website.render.render()
+
+Once render is initialized, we first need to cleanup the route,
+resolve it against any doctype map, check for static file and redirects.
+
+Next step is resoling the route, this piece of the code checks
+wether the route requested is of a standard type, they can be
+one of the following:
+
+	1. Static Page
+	1. Web Form
+	1. DocType View
+		1. List
+		1. Item
+	1. Print View
+
+The precedence is as sequenced in the list above.
+"""
+
 class PageNotFoundError(Exception): pass
+class RouteResolved(Exception): pass
+
+class RenderEngine:
+	def __init__(self, path=None, http_status_code=None):
+		# Reset
+		self.data = None
+		self.http_status_code = http_status_code
+
+		# Set base path based on params or locals
+		self.path = path or frappe.local.request.path or get_home_page()
+		# Remove leading and trailing slashes, remove .html
+		self.path = self.path.strip('/ ').rstrip(".html")
+		# resovlve path from website route map
+		self.path = resolve_from_map(self.path)
+
+		# Check if route caching is enabled
+		self.can_cache = can_cache and can_cache()
+
+	def resolve(self):
+		if is_static_file(self.path):
+			return get_static_file_response()
+
+		try:
+			self.disabled()
+			self.redirect()
+			self.four_oh_four()
+			self.web_form()
+			self.page()
+			self.printview()
+			self.listview()
+
+		except RouteResolved:
+			pass
+
+		except frappe.PermissionError as e:
+			self.data, self.http_status_code = render_403(e, self.path)
+
+		except frappe.Redirect:
+			return build_response(self.path, "", 301, {
+				"Location": frappe.flags.redirect_location or (frappe.local.response or {}).get('location'),
+				"Cache-Control": "no-store, no-cache, must-revalidate"
+			})
+
+		except Exception:
+			self.path = "error"
+			self.data = render_page(self.path)
+			self.http_status_code = 500
+
+		return build_response(self.path, self.data, self.http_status_code or 200)
+
+	def disabled(self):
+		routes = frappe.db.get_all('Portal Menu Item',
+			fields=['route', 'enabled'],
+			filters={
+				'enabled': 0,
+				'route': ['like', '%{0}'.format(self.path)]
+			}
+		)
+
+		for r in routes:
+			_path = r.route.lstrip('/')
+			if self.path == _path and not r.enabled:
+				raise frappe.PermissionError
+
+	def redirect(self):
+		resolve_redirect(self.path)
+
+	def four_oh_four(self):
+		if self.can_cache and frappe.cache().hget('website_404', frappe.request.url):
+			self.data = render_page('404')
+			self.http_status_code = 404
+			raise RouteResolved
+
+	def web_form(self):
+		if bool(frappe.get_all("Web Form", filters={'route': self.path})):
+			self.data = render_web_form(self.path)
+			raise RouteResolved
+
+	def page(self):
+		try:
+			self.data = render_page_by_language(self.path)
+			raise RouteResolved
+		except frappe.DoesNotExistError:
+			return
+
+	def printview(self):
+		doctype, name = self.path_doctype_and_name()
+		if doctype and name:
+			self.path = "printview"
+			frappe.local.form_dict.doctype = doctype
+			frappe.local.form_dict.name = name
+
+			self.data = render_page(self.path)
+			raise RouteResolved
+
+	def listview(self):
+		doctype, name = self.path_doctype_and_name()
+		if doctype:
+			self.path = "list"
+			frappe.local.form_dict.doctype = doctype
+
+			self.data = render_page(self.path)
+			raise RouteResolved
+
+	def path_doctype_and_name(self):
+		doctypes = frappe.db.sql_list("select name from tabDocType")
+		parts = self.path.split("/")
+
+		doctype = parts[0]
+		name = parts[1] if len(parts) > 1 else None
+		if doctype in doctypes:
+			return doctype, name
+
+		# try scrubbed
+		doctype = doctype.replace("_", " ").title()
+		if doctype in doctypes:
+			return doctype, name
+
+		return None, None
 
 def render(path=None, http_status_code=None):
 	"""render html page"""
-	if not path:
-		path = frappe.local.request.path
-
-	try:
-		path = path.strip('/ ')
-		raise_if_disabled(path)
-		resolve_redirect(path)
-		path = resolve_path(path)
-		data = None
-
-		# if in list of already known 404s, send it
-		if can_cache() and frappe.cache().hget('website_404', frappe.request.url):
-			data = render_page('404')
-			http_status_code = 404
-		elif is_static_file(path):
-			return get_static_file_response()
-		elif is_web_form(path):
-			data = render_web_form(path)
-		else:
-			try:
-				data = render_page_by_language(path)
-			except frappe.DoesNotExistError:
-				doctype, name = get_doctype_from_path(path)
-				if doctype and name:
-					path = "printview"
-					frappe.local.form_dict.doctype = doctype
-					frappe.local.form_dict.name = name
-				elif doctype:
-					path = "list"
-					frappe.local.form_dict.doctype = doctype
-				else:
-					# 404s are expensive, cache them!
-					frappe.cache().hset('website_404', frappe.request.url, True)
-					data = render_page('404')
-					http_status_code = 404
-
-				if not data:
-					try:
-						data = render_page(path)
-					except frappe.PermissionError as e:
-						data, http_status_code = render_403(e, path)
-
-			except frappe.PermissionError as e:
-				data, http_status_code = render_403(e, path)
-
-			except frappe.Redirect as e:
-				raise e
-
-			except Exception:
-				path = "error"
-				data = render_page(path)
-				http_status_code = 500
-
-		data = add_csrf_token(data)
-
-	except frappe.Redirect:
-		return build_response(path, "", 301, {
-			"Location": frappe.flags.redirect_location or (frappe.local.response or {}).get('location'),
-			"Cache-Control": "no-store, no-cache, must-revalidate"
-		})
-
-	return build_response(path, data, http_status_code or 200)
-
-def is_static_file(path):
-	if ('.' not in path):
-		return False
-	extn = path.rsplit('.', 1)[-1]
-	if extn in ('html', 'md', 'js', 'xml', 'css', 'txt', 'py'):
-		return False
-
-	for app in frappe.get_installed_apps():
-		file_path = frappe.get_app_path(app, 'www') + '/' + path
-		if os.path.exists(file_path):
-			frappe.flags.file_path = file_path
-			return True
-
-	return False
-
-def is_web_form(path):
-	return bool(frappe.get_all("Web Form", filters={'route': path}))
-
-def render_web_form(path):
-	data = render_page(path)
-	return data
-
-def get_static_file_response():
-	try:
-		f = open(frappe.flags.file_path, 'rb')
-	except IOError:
-		raise NotFound
-
-	response = Response(wrap_file(frappe.local.request.environ, f), direct_passthrough=True)
-	response.mimetype = mimetypes.guess_type(frappe.flags.file_path)[0] or 'application/octet-stream'
-	return response
+	engine = RenderEngine(path=path, http_status_code=http_status_code)
+	return engine.resolve()
 
 def build_response(path, data, http_status_code, headers=None):
 	# build response
@@ -214,14 +267,13 @@ def build_page(path):
 
 	context = get_context(path)
 
-	if context.source:
-		html = frappe.render_template(context.source, context)
-
-	elif context.template:
+	if context.template:
 		if path.endswith('min.js'):
 			html = frappe.get_jloader().get_source(frappe.get_jenv(), context.template)[0]
 		else:
 			html = frappe.get_template(context.template).render(context)
+	elif context.source:
+		html = frappe.render_template(context.source, context)
 
 	if '{index}' in html:
 		html = html.replace('{index}', get_toc(context.route))
@@ -337,25 +389,6 @@ def render_403(e, pathname):
 		primary_label = _('Login'),
 		fullpage=True
 	)
-	return render_page("message"), e.http_status_code
-
-def get_doctype_from_path(path):
-	doctypes = frappe.db.sql_list("select name from tabDocType")
-
-	parts = path.split("/")
-
-	doctype = parts[0]
-	name = parts[1] if len(parts) > 1 else None
-
-	if doctype in doctypes:
-		return doctype, name
-
-	# try scrubbed
-	doctype = doctype.replace("_", " ").title()
-	if doctype in doctypes:
-		return doctype, name
-
-	return None, None
 
 def add_csrf_token(data):
 	if frappe.local.session:
@@ -363,18 +396,3 @@ def add_csrf_token(data):
 				frappe.local.session.data.csrf_token))
 	else:
 		return data
-
-def raise_if_disabled(path):
-	routes = frappe.db.get_all('Portal Menu Item',
-		fields=['route', 'enabled'],
-		filters={
-			'enabled': 0,
-			'route': ['like', '%{0}'.format(path)]
-		}
-	)
-
-	for r in routes:
-		_path = r.route.lstrip('/')
-		if path == _path and not r.enabled:
-			raise frappe.PermissionError
-
