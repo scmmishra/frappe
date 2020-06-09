@@ -52,7 +52,7 @@ def get_document_to_index(route):
 
 def build_index(index_name, documents):
 	schema = Schema(
-		title=TEXT(stored=True), path=ID(stored=True), content=TEXT(stored=True)
+		title=TEXT(stored=True), path=ID(stored=True), content=TEXT(stored=True), doctype=TEXT(stored=True)
 	)
 
 	index_dir = get_index_path(index_name)
@@ -64,7 +64,7 @@ def build_index(index_name, documents):
 	for document in documents:
 		if document:
 			writer.add_document(
-				title=document.title, path=document.path, content=document.content
+				title=document.title, path=document.path, content=document.content, doctype=document.doctype
 			)
 
 	writer.commit()
