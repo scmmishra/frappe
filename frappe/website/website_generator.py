@@ -7,6 +7,8 @@ from frappe.model.document import Document
 from frappe.website.utils import cleanup_page_name
 from frappe.website.render import clear_cache
 from frappe.modules import get_module_name
+from frappe.modules.full_text_search import build_index
+from frappe.utils import strip_html_tags
 
 class WebsiteGenerator(Document):
 	website = frappe._dict()
@@ -120,6 +122,15 @@ class WebsiteGenerator(Document):
 			route.page_title = self.get(self.get_title_field())
 
 		return route
+
+	@staticmethod
+	def build_doctype_index(doctype):
+		documents = frappe.get_all(doctype, fields=['title', 'content', 'route as path'])
+		for doc in documents:
+			doc.doctype = doctype
+			doc.content = strip_html_tags(doc.content)
+
+		build_index("web_routes", documents)
 
 	def send_indexing_request(self, operation_type='URL_UPDATED'):
 		"""Send indexing request on update/trash operation."""
