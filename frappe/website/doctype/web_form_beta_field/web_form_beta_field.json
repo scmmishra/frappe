@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "beta": 1,
+ "creation": "2020-06-11 16:45:47.463505",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "fieldname",
+  "fieldtype",
+  "label",
+  "allow_read_on_all_link_options",
+  "reqd",
+  "depends_on",
+  "read_only",
+  "hidden",
+  "show_in_filter",
+  "set_only_once",
+  "column_break_4",
+  "options",
+  "max_length",
+  "max_value",
+  "section_break_6",
+  "mandatory_depends_on",
+  "column_break_17",
+  "read_only_depends_on",
+  "section_break_19",
+  "description",
+  "column_break_8",
+  "default"
+ ],
+ "fields": [
+  {
+   "fieldname": "fieldname",
+   "fieldtype": "Select",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Fieldname"
+  },
+  {
+   "fieldname": "fieldtype",
+   "fieldtype": "Select",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Fieldtype",
+   "options": "Attach\nAttach Image\nCheck\nCurrency\nData\nDate\nDatetime\nDuration\nFloat\nHTML\nInt\nLink\nRating\nSelect\nSmall Text\nText\nText Editor\nTable\nSection Break\nColumn Break"
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.fieldtype === 'Link'",
+   "fieldname": "allow_read_on_all_link_options",
+   "fieldtype": "Check",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Allow Read On All Link Options"
+  },
+  {
+   "default": "0",
+   "fieldname": "reqd",
+   "fieldtype": "Check",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Mandatory"
+  },
+  {
+   "fieldname": "depends_on",
+   "fieldtype": "Code",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Depends On"
+  },
+  {
+   "default": "0",
+   "fieldname": "read_only",
+   "fieldtype": "Check",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Read Only"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_in_filter",
+   "fieldtype": "Check",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Show in filter"
+  },
+  {
+   "default": "0",
+   "description": "Do not allow user to change after set the first time",
+   "fieldname": "set_only_once",
+   "fieldtype": "Check",
+   "label": "Set Only Once"
+  },
+  {
+   "default": "0",
+   "fieldname": "hidden",
+   "fieldtype": "Check",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Hidden"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break",
+   "hide_days": 1,
+   "hide_seconds": 1
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "Small Text",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "in_list_view": 1,
+   "label": "Options"
+  },
+  {
+   "fieldname": "max_length",
+   "fieldtype": "Int",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Max Length"
+  },
+  {
+   "depends_on": "eval:doc.fieldtype=='Int'",
+   "fieldname": "max_value",
+   "fieldtype": "Int",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Max Value"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break",
+   "hide_days": 1,
+   "hide_seconds": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break",
+   "hide_days": 1,
+   "hide_seconds": 1
+  },
+  {
+   "fieldname": "default",
+   "fieldtype": "Data",
+   "hide_days": 1,
+   "hide_seconds": 1,
+   "label": "Default"
+  },
+  {
+   "fieldname": "mandatory_depends_on",
+   "fieldtype": "Code",
+   "label": "Mandatory Depends On"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "read_only_depends_on",
+   "fieldtype": "Code",
+   "label": "Read Only Depends On"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-06-11 16:47:37.786173",
+ "modified_by": "Administrator",
+ "module": "Website",
+ "name": "Web Form Beta Field",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

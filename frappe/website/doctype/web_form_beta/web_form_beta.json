@@ -106,7 +106,7 @@
    "fieldname": "fields",
    "fieldtype": "Table",
    "label": "Web Form Fields",
-   "options": "Web Form Field"
+   "options": "Web Form Beta Field"
   },
   {
    "default": "0",
@@ -223,7 +223,7 @@
  "has_web_view": 1,
  "is_published_field": "is_published",
  "links": [],
- "modified": "2020-06-10 22:24:19.074543",
+ "modified": "2020-06-11 16:46:04.963306",
  "modified_by": "Administrator",
  "module": "Website",
  "name": "Web Form Beta",
