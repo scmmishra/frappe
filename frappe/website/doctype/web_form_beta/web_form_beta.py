@@ -12,14 +12,14 @@ class WebFormBeta(WebsiteGenerator):
 		no_cache = 1
 	)
 
-	def validate(self):
+	def validate(self: 'WebFormBeta') -> None:
 		self.route = self.make_route()
 
-	def make_route(self):
+	def make_route(self: 'WebFormBeta') -> str:
 		"""Generate or prefix route
 
 		Returns:
-			string: route with 'form/' prefix
+			str: route with 'form/' prefix
 		"""	
 		prefix = "form/"
 		if not self.route:
@@ -36,7 +36,21 @@ class WebFormBeta(WebsiteGenerator):
 
 		# replace multiple slashes with single
 		return re.sub(r'[/]+', '/', self.route)
+	
+	@staticmethod
+	def fetch_fields(reference_doctype: str, mandatory_only: bool=False) -> list:
+		"""Fetch fields from reference doctype to add to fieldslist
 
+		Args:
+			reference_doctype (str): DocType to fetch fields from
+			mandatory_only (bool, optional): Return all fields or mandatory only. Defaults to False.
 
-def get_fields():
-	pass
+		Returns:
+			list[WebFormBetaField]: List of fields from reference doctype meta
+		"""
+		def mandatory(field):
+			return field.reqd
+		fields = frappe.get_meta(reference_doctype).fields
+		if mandatory_only:
+			return list(filter(mandatory, fields))
+		return fields
