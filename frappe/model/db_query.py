@@ -690,6 +690,10 @@ class DatabaseQuery(object):
 				if meta.is_submittable:
 					args.order_by = "`tab{0}`.docstatus asc, {1}".format(self.doctype, args.order_by)
 
+		for child in self.tables[1:]:
+			args.order_by += ", {child}.idx asc".format(child=child)
+
+
 	def validate_order_by_and_group_by(self, parameters):
 		"""Check order by, group by so that atleast one column is selected and does not have subquery"""
 		if not parameters:
