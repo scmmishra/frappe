@@ -10,6 +10,7 @@ from frappe.utils.password import update_password as _update_password
 from frappe.desk.notifications import clear_notifications
 from frappe.desk.doctype.notification_settings.notification_settings import create_notification_settings
 from frappe.utils.user import get_system_managers
+from frappe.twofactor import should_run_2fa
 from bs4 import BeautifulSoup
 import frappe.permissions
 import frappe.share
@@ -567,15 +568,17 @@ def update_password(new_password, logout_all_sessions=0, key=None, old_password=
 		redirect_url = redirect_to
 		frappe.cache().hdel('redirect_after_login', user)
 
-	frappe.local.login_manager.login_as(user)
-
 	frappe.db.set_value("User", user, "last_password_reset_date", today())
 	frappe.db.set_value("User", user, "reset_password_key", "")
 
-	if user_doc.user_type == "System User":
-		return "/desk"
+	if should_run_2fa(user):
+		return "/login"
 	else:
-		return redirect_url if redirect_url else "/"
+		frappe.local.login_manager.login_as(user)
+		if user_doc.user_type == "System User":
+			return "/desk"
+		else:
+			return redirect_url if redirect_url else "/"
 
 @frappe.whitelist(allow_guest=True)
 def test_password_strength(new_password, key=None, old_password=None, user_data=None):
