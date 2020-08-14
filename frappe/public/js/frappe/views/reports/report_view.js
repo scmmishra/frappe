@@ -883,7 +883,7 @@ frappe.views.ReportView = class ReportView extends frappe.views.ListView {
 				columns: 2,
 				options: columns[cdt]
 					.filter(df => {
-						return !df.hidden;
+						return !df.hidden || df.fieldname === "idx";
 					})
 					.map(df => ({
 						label: __(df.label),
